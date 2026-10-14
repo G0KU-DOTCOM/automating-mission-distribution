@@ -57,7 +57,8 @@ De eldre filene 01–04 og de ti `DEMO`-sakene bruker fortsatt ferdig utfylte fa
 - Samme innlesingsfil på nytt gir ingen ekstra oppgaver eller historikk.
 - Motstridende sentrale kildefelt, også hoved-CPV, gir datakonflikt. Nye saker får avklaring fremfor en gjettet mottaker.
 - Blir en tidligere bortsortert konkurranse relevant, kan en ny kildeversjon opprette de første oppgavene på samme lagrede konkurranse.
-- Har konkurransen allerede en oppgave, bevares oppgave-ID og gjeldende mottaker. Endret fag eller område, eller bortfall av relevans, merkes for datakontroll. Markeringen for endret tildelingsgrunnlag bevares ved senere oppdateringer. Et eget grensesnitt for å avslutte denne kontrollen gjenstår.
+- Har konkurransen allerede en oppgave, bevares oppgave-ID og gjeldende mottaker. Endret fag eller område, eller bortfall av relevans, merkes for datakontroll. Markeringen bevares ved senere oppdateringer. Nettleserdemoen kan bekrefte kontroll av endret tildelingsgrunnlag ved lokal godkjenning. Den retter ikke kildedata eller regeltabeller og kan ikke overstyre bortfall av relevans, kildekonflikt eller mulig duplikat.
+- Nye kildeopplysninger gjør tidligere lokal godkjenning utdatert. Gjeldende mottaker og oppgave-ID bevares.
 - Vurderingen lagrer en identifikator for regelsettet som ble brukt. Endring i regelfilen vurderer ikke automatisk alle tidligere konkurranser på nytt. Det krever en ny funksjon; gjentatt innlesing av samme batch er fortsatt en handling uten endringer.
 
 ## Begrensninger vi må kjenne til

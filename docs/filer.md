@@ -22,9 +22,11 @@ README forklarer hvordan du prøver demoen. Denne oversikten viser hvor hver del
 | `mission_distribution/storage.py` | Lagrer kildeposter, oppgaver og historikk i en lokal database. |
 | `mission_distribution/workflow_cli.py` | Lar deg lese inn, se oppgaver og bytte mottaker fra terminalen. |
 | `mission_distribution/dashboard.py` | Lager nettlesersiden med oppgaver, filtre og forklaringer. |
-| `mission_distribution/web_server.py` | Gjør lesevisningen tilgjengelig på din egen maskin. |
+| `mission_distribution/web_server.py` | Viser demoen lokalt og kontrollerer skjemaer før mottakerbytte og godkjenning. |
+| `mission_distribution/approval.py` | Kontrollerer hvilket forslag som er godkjent, og når ny kontroll trengs. |
 | `mission_distribution/web_assets/` | Utseende og ikon for nettleserdemoen, uten eksterne ressurser. |
 | `tests/test_dashboard.py` | Kontrollerer kanalvisning, søk, historikk og at nettsiden ikke endrer oppgaver. |
+| `tests/test_approval.py` | Kontrollerer godkjenning, mottakerbytte, utdaterte sider og nye kildeopplysninger. |
 | `mission_distribution/__main__.py` | Lar deg kjøre demoen fra terminalen. |
 | `tests/` | Kontrollerer at regler og eksempelsaker gir riktig resultat. |
 | [Demovalg](demovalg.md) | Forklarer forenklinger og valg vi har gjort selv. |

@@ -12,11 +12,13 @@ Du trenger Python 3.11 eller nyere. Åpne terminalen i prosjektmappen og aktiver
 python -m mission_distribution serve
 ```
 
-Åpne **http://127.0.0.1:8765** i nettleseren. Velg kanal, søk i oppdragene og klikk på et oppdrag for å se begrunnelsen. Du kan også se mangler, kilder, historikk og bortsorterte konkurranser.
+Åpne **http://127.0.0.1:8765** i nettleseren. Velg kanal og åpne et oppdrag. Du kan se begrunnelsen, velge en annen mottaker og godkjenne forslaget lokalt. Ingenting blir sendt.
 
 Oversikten bruker de lagrede dataene fra `runtime/fagdemo.sqlite3`. Har du fulgt demonstrasjonen tidligere, er de allerede klare. Er oversikten tom, bruk innlesingskommandoen under og oppdater siden.
 
 La terminalen stå åpen mens du bruker demoen. Stopp med **Ctrl+C**. [Se den korte gjennomgangen](docs/nettleserdemo.md).
+
+Hvis demoen kjører mens du oppdaterer koden, stopp den og start den på nytt for å få de nye funksjonene.
 
 ## Hva fungerer nå?
 
@@ -24,6 +26,7 @@ La terminalen stå åpen mens du bruker demoen. Stopp med **Ctrl+C**. [Se den ko
 2. Regler bruker fagkoder for anskaffelser (CPV), tittel og beskrivelse til å finne fag. Leveringssted brukes til å finne område.
 3. Programmet foreslår mottaker: kundens registrerte selger først i direkte salg, ellers ansvarlig for fag og område. Partnerkanalen bruker sin egen ansvarsliste.
 4. Resultatet lagres lokalt. Nye frister oppdaterer samme oppgave, og gjentatt innlesing lager ikke ekstra oppgaver.
+5. Du kan velge mottaker og godkjenne lokalt. Nye opplysninger eller endret mottaker krever ny godkjenning.
 
 Programmet forklarer hvilke regler som traff. Ukjent fag går videre til fordeling eller avklaring. Oppdrag uten relevante treff lagres med forklaring og får ingen nye oppgaver.
 
@@ -42,7 +45,7 @@ Bytt `direkte` til `indirekte` for å se partnerkanalens oppgaver. Kommandoen `a
 
 Demoen har **ingen AI, brukerpålogging eller tilkobling til Doffin, Mercell, CRM eller Microsoft 365**. Den bruker en liten regeltabell som demonstrasjon, ikke arbeidsgiverens faktiske ansvarsdata. Den lokale brukeren kan lese begge kanaler; tilgangsstyring gjenstår.
 
-Nettleseroversikten er en lesevisning. Kapasitet og tidligere kundekontakt styrer foreløpig ikke fordelingen. Godkjenning, tilbakemeldinger og redigering i nettleseren kommer senere. AI-modell skal velges sammen før den kobles til.
+Mottakerbytte og godkjenning virker lokalt, uten pålogging. Kapasitet og tidligere kundekontakt styrer foreløpig ikke fordelingen. Tilbakemeldinger og retting av fag, område og regeltabeller i nettleseren gjenstår. AI-modell skal velges sammen før den kobles til.
 
 ## Les mer hvis du trenger det
 

@@ -39,7 +39,16 @@ Dette er arbeidsgrunnlaget for utviklingen. Fordeling og vedvarende innlesing vi
 - Kontroll av at oppgaver fra feil kanal ikke vises ved valg av oppgave-ID.
 - Tester av faktiske HTTP-forespørsler, visninger uten endringer og oppdateringer etter manuell omfordeling.
 
-Brukerpålogging, faktisk tilgangsstyring for flere brukere, API-innhenting, AI, godkjenning og ekstern levering gjenstår. Redigering og tilbakemeldinger i nettleseren er ikke implementert. Innlesingsdemoen laster ikke ned dokumentfiler. Kort frist i arbeidsdager, verdi, avtaletype, entrepriseform og spørsmålsfrist er heller ikke implementert. Regelsettet er ikke en fullstendig eller godkjent fagtabell.
+## Ferdig i femte del: lokale handlinger
+
+- Manuelt mottakerbytte i nettleseren, bare til aktive personer i valgt kanal.
+- Lokal godkjenning av en bestemt mottaker og den viste versjonen av opplysningene.
+- Kanalvis historikk med tidspunkt og tydelig merket lokal demobruker uten pålogging.
+- Godkjenning blir utdatert ved mottakerbytte eller nye kildeopplysninger, også etter manuell tildeling.
+- Gamle skjemaer kan ikke overskrive nyere handlinger eller godkjenne nytt grunnlag.
+- Eksplisitt bekreftelse av kontroll ved endret tildelingsgrunnlag; konflikter, duplikater, avlysninger og bortfall av relevans blokkerer fortsatt godkjenning.
+
+Brukerpålogging, faktisk tilgangsstyring for flere brukere, API-innhenting, AI og ekstern levering gjenstår. Lokal godkjenning er ikke en identitetsbekreftet godkjenning hos arbeidsgiver. Tilbakemeldinger og retting av fag, område og regeltabeller i nettleseren er ikke implementert. Innlesingsdemoen laster ikke ned dokumentfiler. Kort frist i arbeidsdager, verdi, avtaletype, entrepriseform og spørsmålsfrist er heller ikke implementert. Regelsettet er ikke en fullstendig eller godkjent fagtabell.
 
 ## Avgrensning
 
