@@ -10,6 +10,10 @@ from .routing import route_direct, route_indirect
 
 
 def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] == "serve":
+        from .web_server import main as serve_main
+        serve_main(sys.argv[2:])
+        return
     if len(sys.argv) > 1 and sys.argv[1] in {"ingest", "tasks", "reassign", "classify", "assessments"}:
         from .workflow_cli import main as workflow_main
         workflow_main(sys.argv[1:])

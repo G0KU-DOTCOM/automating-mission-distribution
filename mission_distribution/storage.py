@@ -107,6 +107,18 @@ class DemoStore:
         self.connection.execute("INSERT INTO task_events (task_id, event_type, payload_json) VALUES (?, ?, ?)",
                                 (task_id, event_type, json_text(details)))
 
+    def assessments(self) -> list[dict]:
+        """Public classification only; never include allocations or channel activity."""
+        result = []
+        for row in self.connection.execute("SELECT competition_ref, payload_json FROM competitions ORDER BY competition_ref, id"):
+            public = json.loads(row["payload_json"])
+            if "classification" in public:
+                result.append({"competition_ref": row["competition_ref"],
+                               "title": public["opportunity"]["title"],
+                               "conflicting_fields": sorted(public["conflicts"]),
+                               "classification": public["classification"]})
+        return result
+
     def reassign(self, task_id: str, channel: Channel, person: Person) -> dict:
         if person.channel != channel or not person.active:
             raise DemoDataError("Manuell mottaker må være aktiv og tilhøre den valgte kanalen.")

@@ -153,14 +153,7 @@ def main(argv: list[str]) -> None:
                 else:
                     _print_tasks(tasks, channel)
             elif args.command == "assessments":
-                results = []
-                for row in store.connection.execute("SELECT competition_ref, payload_json FROM competitions ORDER BY competition_ref, id"):
-                    public = json.loads(row["payload_json"])
-                    if "classification" in public:
-                        results.append({"competition_ref": row["competition_ref"],
-                                        "title": public["opportunity"]["title"],
-                                        "conflicting_fields": sorted(public["conflicts"]),
-                                        "classification": public["classification"]})
+                results = store.assessments()
                 if args.json:
                     print(json.dumps({"synthetic": True, "assessments": results}, ensure_ascii=False, indent=2))
                 else:
