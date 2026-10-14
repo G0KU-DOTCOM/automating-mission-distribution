@@ -1,0 +1,54 @@
+{
+  "synthetic": true,
+  "description": "Vårt interne demoformat for allerede klargjorte, relevante oppdrag. Fag og område er satt manuelt, uten AI og uten faktiske API-svar.",
+  "opportunities": [
+    {
+      "id": "DEMO-001", "title": "Demo: service på styringsanlegg",
+      "buyer_name": "Demo Aurora kommune", "buyer_org_number": "000000101",
+      "main_trade": "BA", "other_trades": [], "area": "Vest",
+      "deadline": "2026-11-20", "public_flags": ["MERKENAVN"]
+    },
+    {
+      "id": "DEMO-002", "title": "Demo: teknisk rammeavtale med uklart fag",
+      "buyer_name": "Demo Aurora kommune", "buyer_org_number": "000000101",
+      "main_trade": null, "other_trades": [], "area": "Vest",
+      "deadline": "2026-12-01", "public_flags": []
+    },
+    {
+      "id": "DEMO-003", "title": "Demo: vedlikehold av alarmanlegg",
+      "buyer_name": "Demo Fjordvik kulturhus", "buyer_org_number": "000000202",
+      "main_trade": "FS", "other_trades": [], "area": "Øst",
+      "deadline": "2026-12-03", "public_flags": []
+    },
+    {
+      "id": "DEMO-004", "title": "Demo: nytt adgangssystem",
+      "buyer_name": "Demo Aurora kommune", "buyer_org_number": "000000404",
+      "main_trade": "SE", "other_trades": [], "area": "Nord",
+      "deadline": "2026-12-04", "public_flags": []
+    },
+    {
+      "id": "DEMO-005", "title": "Demo: adgangssystem uten avklart leveringsområde",
+      "buyer_name": "Demo Lærum prosjekt", "buyer_org_number": "000000505",
+      "main_trade": "SE", "other_trades": [], "area": null,
+      "deadline": "2026-12-05", "public_flags": []
+    },
+    {
+      "id": "DEMO-006", "title": "Demo: styringsanlegg i Nord",
+      "buyer_name": "Demo Norddal verksted", "buyer_org_number": "000000606",
+      "main_trade": "BA", "other_trades": [], "area": "Nord",
+      "deadline": "2026-12-06", "public_flags": []
+    },
+    {
+      "id": "DEMO-007", "title": "Demo: service i Skogheim",
+      "buyer_name": "Demo Skogheim kommune", "buyer_org_number": "000000102",
+      "main_trade": "BA", "other_trades": [], "area": "Vest",
+      "deadline": "2026-12-07", "public_flags": []
+    },
+    {
+      "id": "DEMO-008", "title": "Demo: service i Fossrum",
+      "buyer_name": "Demo Fossrum kommune", "buyer_org_number": "000000103",
+      "main_trade": "BA", "other_trades": [], "area": "Vest",
+      "deadline": "2026-12-08", "public_flags": []
+    }
+  ]
+}

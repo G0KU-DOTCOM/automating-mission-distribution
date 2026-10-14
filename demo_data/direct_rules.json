@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "description": "Oppdiktet ansvarsliste for direkte salg. Ingen virkelige personer eller kunder.",
+  "name_similarity_threshold": 0.9,
+  "people": [
+    {"id": "D-01", "name": "Demo Anna", "channel": "direkte", "active": true},
+    {"id": "D-02", "name": "Demo Erik", "channel": "direkte", "active": true},
+    {"id": "D-03", "name": "Demo Nora", "channel": "direkte", "active": true},
+    {"id": "D-04", "name": "Demo Martin", "channel": "direkte", "active": false},
+    {"id": "D-05", "name": "Demo Sara", "channel": "direkte", "active": true},
+    {"id": "D-06", "name": "Demo Emil", "channel": "direkte", "active": false}
+  ],
+  "customers": [
+    {"org_number": "000000101", "name": "Demo Aurora kommune", "owner_id": "D-01", "deputy_id": "D-02", "installed_base": true},
+    {"org_number": "000000102", "name": "Demo Skogheim kommune", "owner_id": "D-04", "deputy_id": null, "installed_base": false},
+    {"org_number": "000000103", "name": "Demo Fossrum kommune", "owner_id": "D-04", "deputy_id": "D-06", "installed_base": false}
+  ],
+  "coverage": [
+    {"trade": "BA", "area": "Vest", "owner_id": "D-03", "deputy_id": "D-02"},
+    {"trade": "FS", "area": "Øst", "owner_id": "D-04", "deputy_id": "D-05"},
+    {"trade": "BA", "area": "Nord", "owner_id": "D-04", "deputy_id": "D-06"}
+  ]
+}

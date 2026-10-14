@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "description": "Oppdiktet ansvarsliste for partnerkanalen. Inneholder ikke kundeeierskap.",
+  "people": [
+    {"id": "P-01", "name": "Demo Liv", "channel": "indirekte", "active": true},
+    {"id": "P-02", "name": "Demo Omar", "channel": "indirekte", "active": true},
+    {"id": "P-03", "name": "Demo Ada", "channel": "indirekte", "active": true},
+    {"id": "P-04", "name": "Demo Theo", "channel": "indirekte", "active": false},
+    {"id": "P-05", "name": "Demo Lea", "channel": "indirekte", "active": false}
+  ],
+  "coverage": [
+    {"trade": "BA", "area": "Vest", "owner_id": "P-01", "deputy_id": "P-02"},
+    {"trade": "FS", "area": "Øst", "owner_id": "P-03", "deputy_id": "P-02"},
+    {"trade": "BA", "area": "Nord", "owner_id": "P-04", "deputy_id": "P-05"}
+  ]
+}

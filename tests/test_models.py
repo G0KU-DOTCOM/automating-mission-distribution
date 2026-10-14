@@ -1,0 +1,77 @@
+"""Reject responsibility data that would silently produce incorrect routing."""
+
+import copy
+import json
+from pathlib import Path
+import tempfile
+import unittest
+
+from mission_distribution.models import DemoDataError, load_direct_rules, load_indirect_rules, load_opportunities
+
+
+DATA = Path(__file__).resolve().parents[1] / "demo_data"
+
+
+class DemoInputTests(unittest.TestCase):
+    def check_rejected(self, filename, mutate, loader):
+        payload = json.loads((DATA / filename).read_text(encoding="utf-8"))
+        mutate(payload)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / filename
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises(DemoDataError):
+                loader(path)
+
+    def test_demo_records_and_responsibilities_load(self):
+        self.assertEqual(len(load_opportunities(DATA / "opportunities.json")), 8)
+        self.assertEqual(len(load_direct_rules(DATA / "direct_rules.json").customers), 3)
+        self.assertEqual(len(load_indirect_rules(DATA / "indirect_rules.json").coverage), 3)
+
+    def test_two_rules_for_one_trade_area_are_rejected(self):
+        def mutate(data):
+            data["coverage"].append(copy.deepcopy(data["coverage"][0]))
+        self.check_rejected("direct_rules.json", mutate, load_direct_rules)
+
+    def test_unknown_owner_is_rejected(self):
+        self.check_rejected("direct_rules.json",
+                            lambda data: data["coverage"][0].update(owner_id="missing"), load_direct_rules)
+
+    def test_owner_cannot_be_their_own_deputy(self):
+        self.check_rejected("direct_rules.json",
+                            lambda data: data["coverage"][0].update(deputy_id="D-03"), load_direct_rules)
+
+    def test_person_from_other_channel_is_rejected(self):
+        self.check_rejected("indirect_rules.json",
+                            lambda data: data["people"][0].update(channel="direkte"), load_indirect_rules)
+
+    def test_customer_data_in_partner_file_is_rejected(self):
+        self.check_rejected("indirect_rules.json", lambda data: data.update(customers=[]), load_indirect_rules)
+
+    def test_false_string_is_not_treated_as_active(self):
+        self.check_rejected("direct_rules.json",
+                            lambda data: data["people"][0].update(active="false"), load_direct_rules)
+
+    def test_private_flag_in_public_opportunity_is_rejected(self):
+        self.check_rejected("opportunities.json",
+                            lambda data: data["opportunities"][0].update(public_flags=["INSTALLERT_BASE"]), load_opportunities)
+
+    def test_unmarked_input_is_rejected(self):
+        self.check_rejected("opportunities.json", lambda data: data.update(synthetic=False), load_opportunities)
+
+    def test_invalid_date_is_rejected(self):
+        self.check_rejected("opportunities.json",
+                            lambda data: data["opportunities"][0].update(deadline="2026-02-30"), load_opportunities)
+
+    def test_duplicate_prepared_opportunity_id_is_rejected(self):
+        def mutate(data):
+            data["opportunities"].append(copy.deepcopy(data["opportunities"][0]))
+        self.check_rejected("opportunities.json", mutate, load_opportunities)
+
+    def test_duplicate_customer_org_number_is_rejected(self):
+        def mutate(data):
+            data["customers"].append(copy.deepcopy(data["customers"][0]))
+        self.check_rejected("direct_rules.json", mutate, load_direct_rules)
+
+
+if __name__ == "__main__":
+    unittest.main()
