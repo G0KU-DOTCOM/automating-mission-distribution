@@ -3,12 +3,17 @@
 import argparse
 import json
 from pathlib import Path
+import sys
 
 from .models import Channel, DemoDataError, load_direct_rules, load_indirect_rules, load_opportunities
 from .routing import route_direct, route_indirect
 
 
 def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] in {"ingest", "tasks", "reassign"}:
+        from .workflow_cli import main as workflow_main
+        workflow_main(sys.argv[1:])
+        return
     parser = argparse.ArgumentParser(description="Fordelingsdemo med bare oppdiktede data. Ingen oppgaver sendes.")
     parser.add_argument("--channel", required=True, choices=[channel.value for channel in Channel])
     parser.add_argument("--scenario", help="Vis bare én eksempelsak, for eksempel DEMO-001.")
