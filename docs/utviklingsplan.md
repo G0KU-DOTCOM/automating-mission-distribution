@@ -8,6 +8,7 @@ Dette er arbeidsgrunnlaget for utviklingen. Første del av fordelingskoden virke
 - Innlesing som stopper ugyldige eller motstridende ansvarslister.
 - Fordelingsforslag med kundeeierskap, fag og område, stedfortredere og årsak til manuell avklaring.
 - En terminaldemo og tester av eksempelsakene.
+- Egne personfagkoder, opplysninger om tidligere kundekontakt og kapasitetsstatus, tydelig adskilt fra reglene som bestemmer ansvar.
 
 Brukerpålogging, tilgangskontroll i endepunkter, innhenting fra kilder, klassifisering, oppdateringer av oppgaver, godkjenning og faktisk levering gjenstår.
 
@@ -44,6 +45,8 @@ Brukerpålogging, tilgangskontroll i endepunkter, innhenting fra kilder, klassif
 - Hvem skal eie oppdrag som omfatter flere fag?
 - Hvilke oppdrag skal partnerkanalen få?
 - Hvordan defineres områder og fravær, og hvem vedlikeholder ansvarsdataene?
+- Hvordan måles ledig kapasitet, og skal en opptatt kundeeier gi vikar, alternativ mottaker eller manuell avklaring?
+- Skal tidligere kundekontakt gi prioritet, og hvilke bekreftede kontaktopplysninger kan brukes?
 - Hvilken AI-modell skal brukes, hvilke data kan den behandle, og når kan et forslag brukes?
 
 Valg vi gjør for demonstrasjonen skal være tydelige og ikke fremstilles som bekreftede beslutninger hos arbeidsgiver.

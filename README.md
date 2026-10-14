@@ -6,7 +6,7 @@ Målet er å redusere manuell fordeling og gjøre det tydelig hvem som har ansva
 
 ## Status nå
 
-Første del virker nå: Programmet leser åtte oppdiktede oppdrag og foreslår en ansvarlig person, eller manuell avklaring, med en begrunnelse.
+Første del virker nå: Programmet leser ti oppdiktede oppdrag og foreslår en ansvarlig person, eller manuell avklaring, med en begrunnelse.
 
 Fag og område er satt på forhånd i eksempeldataene. Det er ingen AI eller tilkobling til Doffin, Mercell, et kundesystem (CRM) eller Microsoft 365 ennå. Grensesnitt, godkjenning, duplikatkontroll og oppdatering av oppgaver kommer i senere steg.
 
@@ -33,6 +33,22 @@ python3 -m mission_distribution --channel direkte --scenario DEMO-002
 ```
 
 Dette er en lokal demonstrasjon for den som har tilgang til prosjektmappen. Den har ikke brukerpålogging. Ingen oppgaver blir sendt eller godkjent.
+
+## Tre viktige forskjeller
+
+| Opplysning | Hva den betyr i demoen |
+| --- | --- |
+| Fagtilhørighet og ansvar | En person kan ha flere fagkoder. Hvem som får oppdraget bestemmes likevel av kundeeierskap og den registrerte ansvarstabellen. |
+| Kundekontakt og kundeeierskap | Tidligere kontakt med kunden er en egen opplysning. Den overstyrer ikke en registrert kundeeier. |
+| Aktiv og ledig | En aktiv person kan være opptatt. Demoen viser kapasiteten separat, men bruker den foreløpig ikke til å omfordele oppdrag. |
+
+`DEMO-009` viser at en passende fagkode alene ikke erstatter en manglende ansvarsregel. `DEMO-010` viser en aktiv, opptatt kundeeier og en annen person med tidligere kundekontakt. Demoen foreslår fortsatt kundeeieren og viser at kapasitet ikke er vurdert i fordelingen:
+
+```sh
+python3 -m mission_distribution --channel direkte --scenario DEMO-010
+```
+
+Regler for kapasitet og prioritering av tidligere kundekontakt må avklares før de kan styre fordelingen.
 
 ## Slik skal det fungere
 
@@ -61,7 +77,7 @@ En mulig videreføring er å bruke SharePoint til ansvarslister og dokumenter, o
 | --- | --- |
 | `README.md` | Forklarer prosjektet og hva som er ferdig. |
 | `.gitignore` | Forteller Git hvilke lokale filer som skal holdes utenfor repoet, blant annet vanlige nøkkelfiler og databaser. |
-| `demo_data/opportunities.json` | De åtte oppdiktede, klargjorte oppdragene. |
+| `demo_data/opportunities.json` | De ti oppdiktede, klargjorte oppdragene. |
 | `demo_data/direct_rules.json` | Oppdiktede selgere, kunder og ansvarsområder i direkte salg. |
 | `demo_data/indirect_rules.json` | Partnerkanalens egen oppdiktede ansvarsliste. |
 | `mission_distribution/models.py` | Leser data og stopper ugyldige ansvarslister. |

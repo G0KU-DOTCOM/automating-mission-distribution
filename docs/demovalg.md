@@ -12,11 +12,24 @@ De oppdiktede organisasjonsnumrene har ni sifre, men er ikke kontrollert mot et 
 
 ## Ansvar og fravær
 
-- `active=true` betyr at en person kan motta oppdrag i denne demonstrasjonen.
-- `active=false` betyr at personen er utilgjengelig. Det er ikke en direkte avlesning av fravær eller en faktisk konto.
+- `active=true` betyr at personen er registrert som aktiv for tildeling i demoens ansvarsliste. Det betyr ikke at vedkommende har ledig kapasitet.
+- `active=false` gjør personen utilgjengelig for tildeling etter disse reglene. Verdien er ikke hentet fra en faktisk konto eller fraværskilde.
+- `capacity` er en separat demoverdi: `ukjent`, `ledig` eller `opptatt`. Den vises med resultatet, men påvirker ikke fordelingsreglene. Ukjent kapasitet betyr ikke ledig kapasitet.
 - Hvert fag og område har høyst én ansvarlig regel per kanal. Dupliserte regler avvises.
 - En inaktiv kundeeier uten registrert stedfortreder gir et forsøk på fordeling etter fag og område, med flagg om inaktiv eier.
 - Når både kundeeieren og en registrert stedfortreder er inaktive, sendes saken til manuell avklaring.
+
+## Fagtilhørighet og avtalt ansvar
+
+Personens `trade_codes` beskriver fagtilhørighet i de oppdiktede dataene. Ansvarstabellen beskriver hvem som er valgt som ansvarlig for et fag og område. Dette er forskjellige opplysninger. En fagkode alene gir ikke rett til å motta oppdraget.
+
+Kundeeierskap kan også gjelde en kunde på tvers av fag. Vi lar derfor ikke personens fagkoder overstyre registrert kundeeierskap. Om eierskapet i en faktisk løsning skal gjelde hele kunden eller kunden per fag, er fortsatt åpent.
+
+## Tidligere kundekontakt
+
+Kundens `prior_contact_ids` viser oppdiktede personer som har hatt kontakt tidligere. Opplysningen lagres bare i direktekanalens kundeliste og påvirker ikke tildelingen. Kundens `owner_id` beskriver registrert eierskap og prioriteres etter de avklarte reglene.
+
+Vi vet ikke hvilke kontaktopplysninger som finnes i et faktisk CRM, eller om og hvordan de skal gi prioritet. Demoen har ingen modell som beregner «beste match» på tvers av alle ansatte.
 
 ## Navnelikhet
 
@@ -32,7 +45,7 @@ Dette er et skille mellom dataene som funksjonene bruker. Den lokale terminaldem
 
 Alle resultater er forslag eller saker til manuell avklaring. Ingen oppgave blir opprettet i Planner, og ingen godkjenning registreres. Datoene er eksempeldata; fristendringer behandles ikke i denne første versjonen.
 
-## De åtte eksempelsakene
+## De ti eksempelsakene
 
 | Sak | Hva den demonstrerer |
 | --- | --- |
@@ -44,3 +57,5 @@ Alle resultater er forslag eller saker til manuell avklaring. Ingen oppgave blir
 | DEMO-006 | Ansvarlig og stedfortreder er begge inaktive. |
 | DEMO-007 | Inaktiv kundeeier uten stedfortreder gir forsøk på fag og område. |
 | DEMO-008 | Kundeeier og registrert stedfortreder er begge inaktive. |
+| DEMO-009 | Det finnes personer med passende fagkode, men ingen ansvarsregel for fag og område. Saken må avklares. |
+| DEMO-010 | En aktiv kundeeier er markert som opptatt og tilhører et annet fag. En annen person har tidligere kontakt. Registrert kundeeierskap styrer fortsatt forslaget; kapasitet vurderes ikke. |
