@@ -1,0 +1,39 @@
+{
+  "synthetic": true,
+  "description": "Oppdiktede eksempler. Fag og område beregnes fra CPV, tekst og fiktive kommunekoder, uten AI.",
+  "cases": [
+    {
+      "id": "FAG-001", "title": "Demo: service på SD-anlegg", "description": "Oppdiktet service på Desigo.",
+      "main_cpv": "50700000", "additional_cpvs": [], "delivery_municipalities": ["9901"], "buyer_municipality": "9902"
+    },
+    {
+      "id": "FAG-002", "title": "Demo: nytt undervisningsbygg",
+      "description": "Oppdiktet leveranse med SD-anlegg, brannalarm og adgangskontroll.",
+      "main_cpv": "45214200", "additional_cpvs": [], "delivery_municipalities": ["9901", "9903"], "buyer_municipality": "9901"
+    },
+    {
+      "id": "FAG-003", "title": "Demo: leveranse av adgangskontroll", "description": null,
+      "main_cpv": "42961100", "additional_cpvs": [], "delivery_municipalities": ["9903"], "buyer_municipality": null
+    },
+    {
+      "id": "FAG-004", "title": "Demo: tekniske arbeider", "description": "Generell oppdiktet beskrivelse uten fagord.",
+      "main_cpv": "45310000", "additional_cpvs": [], "delivery_municipalities": ["9901"], "buyer_municipality": "9901"
+    },
+    {
+      "id": "FAG-005", "title": "Demo: service på heis", "description": "Oppdiktet servicearbeid på heis.",
+      "main_cpv": "50750000", "additional_cpvs": [], "delivery_municipalities": ["9901"], "buyer_municipality": "9901"
+    },
+    {
+      "id": "FAG-006", "title": "Demo: kontorrekvisita", "description": "Oppdiktet innkjøp til kontoret.",
+      "main_cpv": "30192000", "additional_cpvs": [], "delivery_municipalities": ["9902"], "buyer_municipality": null
+    },
+    {
+      "id": "FAG-007", "title": "Demo: markedsdialog om brannalarm", "description": "Oppdiktet markedsdialog.",
+      "main_cpv": null, "additional_cpvs": [], "delivery_municipalities": [], "buyer_municipality": "9902", "notice_kind": "market_dialogue"
+    },
+    {
+      "id": "FAG-008", "title": "Demo: vedlikehold av adgangskontroll", "description": null,
+      "main_cpv": "50610000", "additional_cpvs": [], "delivery_municipalities": ["9999"], "buyer_municipality": "9901"
+    }
+  ]
+}

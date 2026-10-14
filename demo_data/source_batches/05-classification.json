@@ -1,0 +1,212 @@
+{
+  "synthetic": true,
+  "preparation": "rules",
+  "batch_id": "DEMO-BATCH-FAG-005",
+  "description": "Vårt interne demoformat, ikke faktiske API-svar. Fag og område beregnes. Kommunekoder og kunder er oppdiktede.",
+  "read_until": {
+    "doffin": "2026-10-14T12:00:00Z",
+    "mercell": "2026-10-14T12:00:00Z"
+  },
+  "records": [
+    {
+      "source": "doffin",
+      "record_id": "DEMO-FAG-D-001",
+      "competition_ref": "DEMO-FAG-COMP-001",
+      "modified_at": "2026-10-14T11:00:00Z",
+      "opportunity": {
+        "title": "Demo: service på SD-anlegg",
+        "description": "Oppdiktet service på Desigo.",
+        "main_cpv": "50700000",
+        "additional_cpvs": [],
+        "delivery_municipalities": [
+          "9901"
+        ],
+        "buyer_municipality": "9902",
+        "buyer_name": "Demo Aurora kommune",
+        "buyer_org_number": null,
+        "deadline": "2026-12-01",
+        "document_urls": [],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    },
+    {
+      "source": "mercell",
+      "record_id": "DEMO-FAG-M-001",
+      "competition_ref": "DEMO-FAG-COMP-001",
+      "modified_at": "2026-10-14T11:05:00Z",
+      "opportunity": {
+        "title": "Demo: service på SD-anlegg",
+        "description": "Oppdiktet service på Desigo.",
+        "main_cpv": "50700000",
+        "additional_cpvs": [],
+        "delivery_municipalities": [
+          "9901"
+        ],
+        "buyer_municipality": "9902",
+        "buyer_name": "Demo Aurora kommune",
+        "buyer_org_number": "000000101",
+        "deadline": "2026-12-01",
+        "document_urls": [
+          "https://example.invalid/demo-fag-001/beskrivelse.pdf"
+        ],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    },
+    {
+      "source": "doffin",
+      "record_id": "DEMO-FAG-D-002",
+      "competition_ref": "DEMO-FAG-COMP-002",
+      "modified_at": "2026-10-14T11:00:00Z",
+      "opportunity": {
+        "title": "Demo: nytt undervisningsbygg",
+        "description": "Oppdiktet leveranse med SD-anlegg, brannalarm og adgangskontroll.",
+        "main_cpv": "45214200",
+        "additional_cpvs": [],
+        "delivery_municipalities": [
+          "9901",
+          "9903"
+        ],
+        "buyer_municipality": "9901",
+        "buyer_name": "Demo fagkunde 2",
+        "buyer_org_number": "000000202",
+        "deadline": "2026-12-01",
+        "document_urls": [],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    },
+    {
+      "source": "doffin",
+      "record_id": "DEMO-FAG-D-003",
+      "competition_ref": "DEMO-FAG-COMP-003",
+      "modified_at": "2026-10-14T11:00:00Z",
+      "opportunity": {
+        "title": "Demo: leveranse av adgangskontroll",
+        "description": null,
+        "main_cpv": "42961100",
+        "additional_cpvs": [],
+        "delivery_municipalities": [
+          "9903"
+        ],
+        "buyer_municipality": null,
+        "buyer_name": "Demo fagkunde 3",
+        "buyer_org_number": "000000203",
+        "deadline": "2026-12-01",
+        "document_urls": [],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    },
+    {
+      "source": "doffin",
+      "record_id": "DEMO-FAG-D-004",
+      "competition_ref": "DEMO-FAG-COMP-004",
+      "modified_at": "2026-10-14T11:00:00Z",
+      "opportunity": {
+        "title": "Demo: tekniske arbeider",
+        "description": "Generell oppdiktet beskrivelse uten fagord.",
+        "main_cpv": "45310000",
+        "additional_cpvs": [],
+        "delivery_municipalities": [
+          "9901"
+        ],
+        "buyer_municipality": "9901",
+        "buyer_name": "Demo Aurora kommune",
+        "buyer_org_number": "000000101",
+        "deadline": "2026-12-01",
+        "document_urls": [],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    },
+    {
+      "source": "doffin",
+      "record_id": "DEMO-FAG-D-005",
+      "competition_ref": "DEMO-FAG-COMP-005",
+      "modified_at": "2026-10-14T11:00:00Z",
+      "opportunity": {
+        "title": "Demo: service på heis",
+        "description": "Oppdiktet servicearbeid på heis.",
+        "main_cpv": "50750000",
+        "additional_cpvs": [],
+        "delivery_municipalities": [
+          "9901"
+        ],
+        "buyer_municipality": "9901",
+        "buyer_name": "Demo fagkunde 5",
+        "buyer_org_number": "000000205",
+        "deadline": "2026-12-01",
+        "document_urls": [],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    },
+    {
+      "source": "doffin",
+      "record_id": "DEMO-FAG-D-006",
+      "competition_ref": "DEMO-FAG-COMP-006",
+      "modified_at": "2026-10-14T11:00:00Z",
+      "opportunity": {
+        "title": "Demo: kontorrekvisita",
+        "description": "Oppdiktet innkjøp til kontoret.",
+        "main_cpv": "30192000",
+        "additional_cpvs": [],
+        "delivery_municipalities": [
+          "9902"
+        ],
+        "buyer_municipality": null,
+        "buyer_name": "Demo fagkunde 6",
+        "buyer_org_number": "000000206",
+        "deadline": "2026-12-01",
+        "document_urls": [],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    },
+    {
+      "source": "doffin",
+      "record_id": "DEMO-FAG-D-007",
+      "competition_ref": "DEMO-FAG-COMP-007",
+      "modified_at": "2026-10-14T11:00:00Z",
+      "opportunity": {
+        "title": "Demo: markedsdialog om brannalarm",
+        "description": "Oppdiktet markedsdialog.",
+        "main_cpv": null,
+        "additional_cpvs": [],
+        "delivery_municipalities": [],
+        "buyer_municipality": "9902",
+        "notice_kind": "market_dialogue",
+        "buyer_name": "Demo fagkunde 7",
+        "buyer_org_number": "000000207",
+        "deadline": "2026-12-01",
+        "document_urls": [],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    },
+    {
+      "source": "doffin",
+      "record_id": "DEMO-FAG-D-008",
+      "competition_ref": "DEMO-FAG-COMP-008",
+      "modified_at": "2026-10-14T11:00:00Z",
+      "opportunity": {
+        "title": "Demo: vedlikehold av adgangskontroll",
+        "description": null,
+        "main_cpv": "50610000",
+        "additional_cpvs": [],
+        "delivery_municipalities": [
+          "9999"
+        ],
+        "buyer_municipality": "9901",
+        "buyer_name": "Demo fagkunde 8",
+        "buyer_org_number": "000000208",
+        "deadline": "2026-12-01",
+        "document_urls": [],
+        "notice_status": "active",
+        "public_flags": []
+      }
+    }
+  ]
+}

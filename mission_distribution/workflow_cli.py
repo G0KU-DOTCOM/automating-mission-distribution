@@ -6,6 +6,7 @@ from pathlib import Path
 import sqlite3
 
 from .ingestion import ingest_batch
+from .classification import classify, load_classification_cases, load_classification_rules
 from .models import Channel, DemoDataError, load_direct_rules, load_indirect_rules
 from .source_data import load_source_batch
 from .storage import DemoStore
@@ -15,7 +16,30 @@ ROOT = Path(__file__).resolve().parent.parent
 FIELDS = {"buyer_org_number": "organisasjonsnummer", "main_trade": "hovedfag", "area": "område",
           "deadline": "frist", "title": "tittel", "description": "beskrivelse",
           "document_urls": "dokumentlenker", "public_flags": "offentlige flagg",
-          "other_trades": "øvrige fag", "buyer_name": "innkjøpers navn"}
+          "other_trades": "øvrige fag", "buyer_name": "innkjøpers navn",
+          "main_cpv": "hoved-CPV", "buyer_municipality": "innkjøpers kommune", "notice_kind": "kunngjøringstype"}
+
+
+def _print_assessment(result: dict) -> None:
+    labels = {"relevant": "relevant etter demoreglene", "fag_ukjent": "ukjent fag – går videre",
+              "ikke_relevant": "bortsortert etter demoreglene"}
+    print(f"  Vurdering: {labels[result['relevance']]}")
+    print(f"  Fag: {result['main_trade'] or 'ukjent'}; øvrige fag: {', '.join(result['other_trades']) or 'ingen'}")
+    print(f"  Type: {result['work_type']}; område: {result['area'] or 'ukjent'}")
+    print(f"  Hvorfor: {result['explanation']}")
+    for hit in result["hits"]:
+        if hit["kind"] == "cpv":
+            print(f"  Treff: CPV {hit['code']} → {hit['trade']} (regel {hit['matched_prefix']})")
+        else:
+            fields = ", ".join(FIELDS.get(field, field) for field in hit["fields"])
+            print(f"  Treff: «{hit['phrase']}» → {hit['trade']} i {fields}")
+    if result["broad_codes"]:
+        print("  Brede CPV-koder: " + ", ".join(result["broad_codes"]))
+    if result["excluded_codes"]:
+        print("  CPV-koder som ikke gir fagtreff: " + ", ".join(result["excluded_codes"]))
+    print(f"  Områdegrunnlag: {result['area_explanation']}")
+    if result["public_flags"]:
+        print("  Flagg: " + ", ".join(result["public_flags"]))
 
 
 def _print_tasks(tasks: list[dict], channel: Channel) -> None:
@@ -36,6 +60,10 @@ def _print_tasks(tasks: list[dict], channel: Channel) -> None:
         else:
             print("  Mottaker: manuell avklaring")
         print(f"  Tildelingsgrunnlag: {task['reason_code']} — {task['explanation']}")
+        if public.get("classification"):
+            _print_assessment(public["classification"])
+        if task["data_review_required"]:
+            print("  Krever datakontroll. Gjeldende mottaker er ikke automatisk endret.")
         print("  Kilder: " + ", ".join(f"{item['source']}: {item['record_id']}" for item in public["source_refs"]))
         if public["missing_fields"]:
             print("  Mangler: " + ", ".join(FIELDS.get(field, field) for field in public["missing_fields"]))
@@ -53,6 +81,8 @@ def _print_tasks(tasks: list[dict], channel: Channel) -> None:
                 print("  Historikk: konkurransen er avlyst.")
             elif kind == "opplysninger_endret":
                 print("  Historikk: endret " + ", ".join(FIELDS.get(field, field) for field in details["fields"]))
+            elif kind == "fagvurdering_endret":
+                print(f"  Historikk: fagvurdering {details['previous']} → {details['current']}")
         print()
 
 
@@ -61,6 +91,12 @@ def main(argv: list[str]) -> None:
     commands = parser.add_subparsers(dest="command", required=True)
     ingest = commands.add_parser("ingest", help="Les inn en batch med fiktive kildeposter.")
     ingest.add_argument("batch", type=Path)
+    ingest.add_argument("--rules", type=Path, default=ROOT / "demo_data" / "classification_rules.json")
+    assessment = commands.add_parser("classify", help="Forklar fag og område for fiktive eksempelsaker.")
+    assessment.add_argument("examples", type=Path)
+    assessment.add_argument("--rules", type=Path, default=ROOT / "demo_data" / "classification_rules.json")
+    assessment.add_argument("--json", action="store_true")
+    assessments = commands.add_parser("assessments", help="Vis lagrede offentlige fagvurderinger, også bortsorterte.")
     show = commands.add_parser("tasks", help="Vis lagrede oppgaver i én kanal.")
     show.add_argument("--channel", required=True, choices=[channel.value for channel in Channel])
     show.add_argument("--competition-ref")
@@ -68,17 +104,31 @@ def main(argv: list[str]) -> None:
     reassign.add_argument("--channel", required=True, choices=[channel.value for channel in Channel])
     reassign.add_argument("--competition-ref", required=True)
     reassign.add_argument("--person", required=True)
-    for command in (ingest, show, reassign):
+    for command in (ingest, show, reassign, assessments):
         command.add_argument("--db", type=Path, default=ROOT / "runtime" / "demo.sqlite3")
         command.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     try:
+        if args.command == "classify":
+            rules = load_classification_rules(args.rules)
+            cases = load_classification_cases(args.examples)
+            results = [classify(case, rules) for case in cases]
+            if args.json:
+                print(json.dumps({"synthetic": True, "ai_used": False, "assessments": results}, ensure_ascii=False, indent=2))
+            else:
+                print("FAGVURDERING — oppdiktede data og demonstrasjonsregler. Ingen AI.\n")
+                for case, result in zip(cases, results):
+                    print(f"{case.id}: {case.title}")
+                    _print_assessment(result)
+                    print()
+            return
         batch = load_source_batch(args.batch) if args.command == "ingest" else None
         with DemoStore(args.db) as store:
             if args.command == "ingest":
                 direct = load_direct_rules(ROOT / "demo_data" / "direct_rules.json")
                 indirect = load_indirect_rules(ROOT / "demo_data" / "indirect_rules.json")
-                result = ingest_batch(store, batch, direct, indirect)
+                classification_rules = load_classification_rules(args.rules)
+                result = ingest_batch(store, batch, direct, indirect, classification_rules)
                 if args.json:
                     print(json.dumps({"synthetic": True, "external_services_called": False, "report": result},
                                      ensure_ascii=False, indent=2))
@@ -88,6 +138,7 @@ def main(argv: list[str]) -> None:
                     print(f"Nye demooppgaver: {result['created_tasks']}; oppdaterte: {result['updated_tasks']}")
                     print(f"Uendrede/gjentatte poster: {result['duplicate_records']}; eldre versjoner ignorert: {result['stale_records']}")
                     print(f"Mulige duplikater beholdt separat: {result['possible_duplicates']}")
+                    print(f"Berørte konkurranser uten relevante treff: {result['not_relevant_competitions']}")
                     if result["already_processed"]:
                         print("Denne batchen er allerede behandlet. Ingen oppgaver er endret.")
                     print("Ingen eksterne API-er er kalt, og ingenting er levert til Microsoft 365.")
@@ -101,6 +152,27 @@ def main(argv: list[str]) -> None:
                                      ensure_ascii=False, indent=2))
                 else:
                     _print_tasks(tasks, channel)
+            elif args.command == "assessments":
+                results = []
+                for row in store.connection.execute("SELECT competition_ref, payload_json FROM competitions ORDER BY competition_ref, id"):
+                    public = json.loads(row["payload_json"])
+                    if "classification" in public:
+                        results.append({"competition_ref": row["competition_ref"],
+                                        "title": public["opportunity"]["title"],
+                                        "conflicting_fields": sorted(public["conflicts"]),
+                                        "classification": public["classification"]})
+                if args.json:
+                    print(json.dumps({"synthetic": True, "assessments": results}, ensure_ascii=False, indent=2))
+                else:
+                    print("LAGREDE OFFENTLIGE FAGVURDERINGER — ingen interne tildelinger.\n")
+                    if not results:
+                        print("Ingen lagrede fagvurderinger. De eldre klargjorte eksemplene bruker ikke fagvurdering.")
+                    for result in results:
+                        print(f"{result['competition_ref'] or 'Uten referanse'}: {result['title']}")
+                        _print_assessment(result["classification"])
+                        if result["conflicting_fields"]:
+                            print("  Konflikt krever avklaring: " + ", ".join(result["conflicting_fields"]))
+                        print()
             else:
                 channel = Channel(args.channel)
                 loader = load_direct_rules if channel == Channel.DIRECT else load_indirect_rules

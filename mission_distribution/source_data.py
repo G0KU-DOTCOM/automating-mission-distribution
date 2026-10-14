@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from .classification import input_dict, parse_classification_input
 from .models import DemoDataError, _items, _object, _read, _text, opportunity_dict, parse_opportunity
 
 
@@ -58,6 +59,9 @@ def parse_source_batch(data: dict) -> SourceBatch:
     if data.get("synthetic") is not True:
         raise DemoDataError("Kildebatchen må være merket synthetic=true.")
     batch_id = _text(data.get("batch_id"), "batch_id")
+    preparation = data.get("preparation", "prepared_demo")
+    if not isinstance(preparation, str) or preparation not in {"prepared_demo", "rules"}:
+        raise DemoDataError("preparation må være prepared_demo eller rules.")
     read_until = {}
     for source, through in _object(data.get("read_until"), "read_until").items():
         if source not in SOURCES:
@@ -79,6 +83,8 @@ def parse_source_batch(data: dict) -> SourceBatch:
         if modified_at > read_until[source]:
             raise DemoDataError("En kildepost er nyere enn batchens oppgitte lesegrense.")
         content = _object(row.get("opportunity"), "opportunity")
+        if preparation == "rules" and any(content.get(field) for field in ("main_trade", "other_trades", "area")):
+            raise DemoDataError("I rules-modus skal fag og område beregnes fra regler, ikke settes manuelt.")
         prepared = parse_opportunity({**content, "id": f"{source}:{record_id}"})
         payload = opportunity_dict(prepared)
         payload.pop("id")
@@ -96,6 +102,10 @@ def parse_source_batch(data: dict) -> SourceBatch:
         if status not in (None, "active", "cancelled"):
             raise DemoDataError("notice_status må være active, cancelled eller null.")
         payload["notice_status"] = status
+        if preparation == "rules":
+            payload["classification_input"] = input_dict(parse_classification_input({
+                **content, "id": f"{source}:{record_id}",
+            }))
         records.append(SourceRecord(source, record_id,
                                     _text(row.get("competition_ref"), "competition_ref", True),
                                     modified_at, payload))

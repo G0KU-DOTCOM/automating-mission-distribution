@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "description": "Avgrenset demotabell. Koblinger mellom fag, koder, ord og områder er ikke en bekreftet eller fullstendig arbeidsgivertabell.",
+  "cpv_rules": [
+    {"prefix": "50700000", "trade": "BA"},
+    {"prefix": "50610000", "trade": "SE"},
+    {"prefix": "42961100", "trade": "SE"}
+  ],
+  "keyword_rules": [
+    {"phrase": "SD-anlegg", "trade": "BA"},
+    {"phrase": "brannalarm", "trade": "FS"},
+    {"phrase": "adgangskontroll", "trade": "SE"}
+  ],
+  "excluded_codes": ["45313000", "50750000"],
+  "broad_codes": ["45310000", "42961000", "42961200"],
+  "trade_priority": ["BA", "FS", "SE"],
+  "municipality_areas": {"9901": "Vest", "9902": "Øst", "9903": "Nord"},
+  "brand_words": ["Desigo", "Cerberus", "Siemens"],
+  "type_prefixes": {
+    "installasjon": ["45", "51"],
+    "leveranse": ["31", "32", "35", "42", "48"],
+    "service": ["50"]
+  }
+}

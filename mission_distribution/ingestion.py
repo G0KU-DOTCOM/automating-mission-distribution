@@ -2,6 +2,7 @@
 
 import json
 
+from .classification import ClassificationRules, classify, parse_classification_input
 from .models import Channel, DemoDataError, DirectRules, IndirectRules, parse_opportunity
 from .routing import Decision, route_direct, route_indirect
 from .source_data import SourceBatch, SourceRecord, json_text
@@ -61,7 +62,7 @@ def _identity(store: DemoStore, record: SourceRecord) -> tuple[str | None, list[
     return None, sorted(set(possible + exact))
 
 
-def _canonical(store: DemoStore, competition_id: str) -> dict:
+def _canonical(store: DemoStore, competition_id: str, rules: ClassificationRules | None = None) -> dict:
     previous = store.competition(competition_id)
     old = previous.get("opportunity", {})
     snapshots = store.connection.execute("""
@@ -101,7 +102,30 @@ def _canonical(store: DemoStore, competition_id: str) -> dict:
     possible = previous.get("possible_duplicate_ids", [])
     if possible and "MULIG_DUPLIKAT" not in public["public_flags"]:
         public["public_flags"].append("MULIG_DUPLIKAT")
-    return {
+    classification = None
+    inputs = [(row, payload["classification_input"]) for row, payload in payloads
+              if "classification_input" in payload]
+    if inputs:
+        if rules is None:
+            raise DemoDataError("Kildeposter i rules-modus krever en fag- og områdetabell.")
+        previous_inputs = previous.get("classification_input", {})
+        merged = {"id": competition_id, "title": public["title"], "description": public["description"]}
+        for field in ("main_cpv", "buyer_municipality", "notice_kind"):
+            values = [(row, value[field]) for row, value in inputs if value.get(field) is not None]
+            merged[field] = values[0][1] if values else previous_inputs.get(field)
+            if len({json_text(value) for _, value in values}) > 1:
+                conflicts[field] = [{"source": row["source"], "record_id": row["record_id"], "value": value}
+                                    for row, value in values]
+        merged["notice_kind"] = merged["notice_kind"] or "competition"
+        for field in ("additional_cpvs", "delivery_municipalities"):
+            merged[field] = list(dict.fromkeys(item for _, value in inputs for item in value[field]))
+        classification = classify(parse_classification_input(merged), rules)
+        for field in ("main_trade", "other_trades", "area", "work_type"):
+            public[field] = classification[field]
+        public["public_flags"] = list(dict.fromkeys(public["public_flags"] + classification["public_flags"]))
+        for field in ("main_trade", "area"):
+            origins[field] = {"method": "regeltabell", "rules_fingerprint": rules.fingerprint}
+    result = {
         "opportunity": public,
         "source_refs": [{"source": row["source"], "record_id": row["record_id"],
                          "modified_at": row["modified_at"]} for row in snapshots],
@@ -110,6 +134,10 @@ def _canonical(store: DemoStore, competition_id: str) -> dict:
         "conflicts": conflicts,
         "possible_duplicate_ids": possible,
     }
+    if classification is not None:
+        result["classification_input"] = merged
+        result["classification"] = classification
+    return result
 
 
 def _proposal(public: dict, channel: Channel, direct: DirectRules, indirect: IndirectRules) -> dict:
@@ -130,11 +158,15 @@ def _update_tasks(store: DemoStore, competition_id: str, before: dict, after: di
     changed = [field for field in new_public if field != "id" and old_public.get(field) != new_public[field]]
     review_changed = any(before.get(field) != after.get(field)
                          for field in ("conflicts", "missing_fields", "possible_duplicate_ids"))
+    classification_changed = before.get("classification") != after.get("classification")
+    should_route = after.get("classification", {}).get("should_route", True)
+    # A conflict must be reviewed even when the selected source fields have no relevance hit.
+    should_route = should_route or bool(after["conflicts"])
     for channel in Channel:
         row = store.connection.execute("SELECT id, payload_json FROM tasks WHERE competition_id = ? AND channel = ?",
                                        (competition_id, channel.value)).fetchone()
         if row is None:
-            if new_public["notice_status"] == "cancelled":
+            if new_public["notice_status"] == "cancelled" or not should_route:
                 continue
             task = _proposal(after, channel, direct, indirect)
             task.update(task_id=store.new_id("T-"), competition_id=competition_id,
@@ -145,11 +177,11 @@ def _update_tasks(store: DemoStore, competition_id: str, before: dict, after: di
             store.add_event(task["task_id"], "forslag_opprettet", {"reason_code": task["reason_code"]})
             created += 1
             continue
-        if not changed and not review_changed:
+        if not changed and not review_changed and not classification_changed:
             continue
         task = json.loads(row["payload_json"])
         # An assigned task keeps its current owner, including a manual reassignment.
-        if task["owner"] is None and task["assignment_type"] == "regel" and new_public["notice_status"] != "cancelled":
+        if task["owner"] is None and task["assignment_type"] == "regel" and new_public["notice_status"] != "cancelled" and should_route:
             proposal = _proposal(after, channel, direct, indirect)
             for field in ("owner", "status", "reason_code", "explanation", "flags"):
                 task[field] = proposal[field]
@@ -157,9 +189,15 @@ def _update_tasks(store: DemoStore, competition_id: str, before: dict, after: di
                 store.add_event(task["task_id"], "mottaker_foreslått", {"owner_id": task["owner"]["id"]})
         private_flags = [flag for flag in task["flags"] if flag not in new_public["public_flags"]
                          and flag in {"INSTALLERT_BASE", "EIER_INAKTIV"}]
+        # Keep a changed assignment basis visible across later unrelated updates.
+        classification_review = task.get("classification_review_required", False) or bool(
+            task["owner"] and classification_changed and
+            (not should_route or any(field in changed for field in ("main_trade", "area"))))
         task.update(title=new_public["title"], main_trade=new_public["main_trade"], area=new_public["area"],
                     deadline=new_public["deadline"], flags=list(new_public["public_flags"]) + private_flags,
-                    data_review_required=bool(after["conflicts"] or after["possible_duplicate_ids"]))
+                    classification_review_required=classification_review,
+                    data_review_required=bool(after["conflicts"] or after["possible_duplicate_ids"] or not should_route
+                                              or classification_review))
         if "deadline" in changed:
             store.add_event(task["task_id"], "frist_endret", {"previous": old_public.get("deadline"),
                                                              "current": new_public["deadline"]})
@@ -174,16 +212,24 @@ def _update_tasks(store: DemoStore, competition_id: str, before: dict, after: di
                 "missing_fields": after["missing_fields"], "conflicting_fields": sorted(after["conflicts"]),
                 "possible_duplicate": bool(after["possible_duplicate_ids"]),
             })
+        if classification_changed:
+            store.add_event(task["task_id"], "fagvurdering_endret", {
+                "previous": before.get("classification", {}).get("relevance"),
+                "current": after.get("classification", {}).get("relevance"),
+                "main_trade": new_public["main_trade"],
+            })
         store.connection.execute("UPDATE tasks SET payload_json = ? WHERE id = ? AND channel = ?",
                                  (json_text(task), row["id"], channel.value))
         updated += 1
     return created, updated
 
 
-def ingest_batch(store: DemoStore, batch: SourceBatch, direct: DirectRules, indirect: IndirectRules) -> dict:
+def ingest_batch(store: DemoStore, batch: SourceBatch, direct: DirectRules, indirect: IndirectRules,
+                 classification_rules: ClassificationRules | None = None) -> dict:
     report = {"batch_id": batch.id, "records_seen": len(batch.records), "created_competitions": 0,
               "created_tasks": 0, "updated_tasks": 0, "duplicate_records": 0,
-              "stale_records": 0, "possible_duplicates": 0, "already_processed": False}
+              "stale_records": 0, "possible_duplicates": 0, "already_processed": False,
+              "not_relevant_competitions": 0}
     connection = store.connection
     with connection:
         connection.execute("BEGIN IMMEDIATE")
@@ -230,12 +276,15 @@ def ingest_batch(store: DemoStore, batch: SourceBatch, direct: DirectRules, indi
                 INSERT INTO source_versions (source, record_id, competition_id, modified_at, payload_json)
                 VALUES (?, ?, ?, ?, ?)
             """, (record.source, record.record_id, competition_id, record.modified_at, json_text(record.payload)))
-            public = _canonical(store, competition_id)
+            public = _canonical(store, competition_id, classification_rules)
             connection.execute("UPDATE competitions SET payload_json = ? WHERE id = ?",
                                (json_text(public), competition_id))
         # Decide only after all sources in the batch are combined, avoiding premature ownership.
         for competition_id, previous in before.items():
-            created, updated = _update_tasks(store, competition_id, previous, store.competition(competition_id), direct, indirect)
+            public = store.competition(competition_id)
+            if not public.get("classification", {}).get("should_route", True) and not public["conflicts"]:
+                report["not_relevant_competitions"] += 1
+            created, updated = _update_tasks(store, competition_id, previous, public, direct, indirect)
             report["created_tasks"] += created
             report["updated_tasks"] += updated
         for source, through in batch.read_until.items():
