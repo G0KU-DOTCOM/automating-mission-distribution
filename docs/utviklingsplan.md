@@ -30,7 +30,16 @@ Dette er arbeidsgrunnlaget for utviklingen. Fordeling og vedvarende innlesing vi
 - Innlesing av kildeposter uten ferdig utfylt fag og område, koblet til eksisterende fordeling.
 - Endret fagvurdering bevarer gjeldende oppgave og mottaker, med datakontroll når tildelingsgrunnlaget endres.
 
-Brukerpålogging, tilgangskontroll i endepunkter, faktisk API-innhenting, AI, godkjenning og ekstern levering gjenstår. Innlesingsdemoen laster ikke ned dokumentfiler. Kort frist i arbeidsdager, verdi, avtaletype, entrepriseform og spørsmålsfrist er heller ikke implementert. Regelsettet er ikke en fullstendig eller godkjent fagtabell.
+## Ferdig i fjerde del: lesevisning
+
+- Lokal oppdragsoversikt i nettleseren, med en startkommando og uten ekstra pakker.
+- Kanalvis oppgaveliste med søk, statusfilter og sortering.
+- Begrunnelse for mottaker, fagtreff, mangler, konflikter, kilder og egen kanalhistorikk.
+- Offentlig oversikt over bortsorterte konkurranser.
+- Kontroll av at oppgaver fra feil kanal ikke vises ved valg av oppgave-ID.
+- Tester av faktiske HTTP-forespørsler, visninger uten endringer og oppdateringer etter manuell omfordeling.
+
+Brukerpålogging, faktisk tilgangsstyring for flere brukere, API-innhenting, AI, godkjenning og ekstern levering gjenstår. Redigering og tilbakemeldinger i nettleseren er ikke implementert. Innlesingsdemoen laster ikke ned dokumentfiler. Kort frist i arbeidsdager, verdi, avtaletype, entrepriseform og spørsmålsfrist er heller ikke implementert. Regelsettet er ikke en fullstendig eller godkjent fagtabell.
 
 ## Avgrensning
 

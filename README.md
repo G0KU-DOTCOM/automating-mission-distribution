@@ -4,6 +4,20 @@ Dette prosjektet viser hvordan en kunngjøring kan bli til en oppgave hos riktig
 
 **Alt du ser i demoen er oppdiktet.** Ingen oppgaver eller varsler blir sendt.
 
+## Åpne demoen i nettleseren
+
+Du trenger Python 3.11 eller nyere. Åpne terminalen i prosjektmappen og aktiver prosjektets venv. Ingen ekstra pakker eller nøkler trengs.
+
+```sh
+python -m mission_distribution serve
+```
+
+Åpne **http://127.0.0.1:8765** i nettleseren. Velg kanal, søk i oppdragene og klikk på et oppdrag for å se begrunnelsen. Du kan også se mangler, kilder, historikk og bortsorterte konkurranser.
+
+Oversikten bruker de lagrede dataene fra `runtime/fagdemo.sqlite3`. Har du fulgt demonstrasjonen tidligere, er de allerede klare. Er oversikten tom, bruk innlesingskommandoen under og oppdater siden.
+
+La terminalen stå åpen mens du bruker demoen. Stopp med **Ctrl+C**. [Se den korte gjennomgangen](docs/nettleserdemo.md).
+
 ## Hva fungerer nå?
 
 1. Programmet leser eksempeldata og samler poster som gjelder samme konkurranse.
@@ -12,16 +26,6 @@ Dette prosjektet viser hvordan en kunngjøring kan bli til en oppgave hos riktig
 4. Resultatet lagres lokalt. Nye frister oppdaterer samme oppgave, og gjentatt innlesing lager ikke ekstra oppgaver.
 
 Programmet forklarer hvilke regler som traff. Ukjent fag går videre til fordeling eller avklaring. Oppdrag uten relevante treff lagres med forklaring og får ingen nye oppgaver.
-
-## Prøv fagvurderingen
-
-Du trenger Python 3.11 eller nyere. Åpne terminalen i prosjektmappen. Har du aktivert prosjektets venv, kan du bruke `python` i stedet for `python3`. Ingen ekstra pakker eller nøkler trengs.
-
-```sh
-python3 -m mission_distribution classify demo_data/classification_examples.json
-```
-
-Du får åtte eksempler med fag, område og begrunnelse. Ett eksempel finner flere fag, ett har ukjent fag, og to sorteres bort etter demoreglene.
 
 ## Prøv hele kjeden
 
@@ -38,11 +42,12 @@ Bytt `direkte` til `indirekte` for å se partnerkanalens oppgaver. Kommandoen `a
 
 Demoen har **ingen AI, brukerpålogging eller tilkobling til Doffin, Mercell, CRM eller Microsoft 365**. Den bruker en liten regeltabell som demonstrasjon, ikke arbeidsgiverens faktiske ansvarsdata. Den lokale brukeren kan lese begge kanaler; tilgangsstyring gjenstår.
 
-Kapasitet og tidligere kundekontakt vises som egne opplysninger, men styrer foreløpig ikke fordelingen. Godkjenning, tilbakemeldinger og nettlesergrensesnitt kommer senere. AI-modell skal velges sammen før den kobles til.
+Nettleseroversikten er en lesevisning. Kapasitet og tidligere kundekontakt styrer foreløpig ikke fordelingen. Godkjenning, tilbakemeldinger og redigering i nettleseren kommer senere. AI-modell skal velges sammen før den kobles til.
 
 ## Les mer hvis du trenger det
 
 - [Fagvurdering med eksempler](docs/fagvurdering.md)
+- [Oppdragsoversikt i nettleseren](docs/nettleserdemo.md)
 - [Prøv duplikater, fristendring og manuell omfordeling](docs/innlesing.md)
 - [Hva gjør filene?](docs/filer.md)
 - [Valgene i demoen](docs/demovalg.md)

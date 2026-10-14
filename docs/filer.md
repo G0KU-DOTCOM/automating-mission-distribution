@@ -21,8 +21,13 @@ README forklarer hvordan du prøver demoen. Denne oversikten viser hvor hver del
 | `mission_distribution/ingestion.py` | Samler konkurranser og oppdaterer oppgaver med samme ID og eier. |
 | `mission_distribution/storage.py` | Lagrer kildeposter, oppgaver og historikk i en lokal database. |
 | `mission_distribution/workflow_cli.py` | Lar deg lese inn, se oppgaver og bytte mottaker fra terminalen. |
+| `mission_distribution/dashboard.py` | Lager nettlesersiden med oppgaver, filtre og forklaringer. |
+| `mission_distribution/web_server.py` | Gjør lesevisningen tilgjengelig på din egen maskin. |
+| `mission_distribution/web_assets/` | Utseende og ikon for nettleserdemoen, uten eksterne ressurser. |
+| `tests/test_dashboard.py` | Kontrollerer kanalvisning, søk, historikk og at nettsiden ikke endrer oppgaver. |
 | `mission_distribution/__main__.py` | Lar deg kjøre demoen fra terminalen. |
 | `tests/` | Kontrollerer at regler og eksempelsaker gir riktig resultat. |
-| [Demovalg](docs/demovalg.md) | Forklarer forenklinger og valg vi har gjort selv. |
-| [Innlesing steg for steg](docs/innlesing.md) | Viser hvordan du demonstrerer duplikatkontroll og oppdateringer. |
-| [Utviklingsplan](docs/utviklingsplan.md) | Beskriver kravene vi bygger og kontrollerer steg for steg. |
+| [Demovalg](demovalg.md) | Forklarer forenklinger og valg vi har gjort selv. |
+| [Innlesing steg for steg](innlesing.md) | Viser hvordan du demonstrerer duplikatkontroll og oppdateringer. |
+| [Utviklingsplan](utviklingsplan.md) | Beskriver kravene vi bygger og kontrollerer steg for steg. |
+| [Nettleserdemo](nettleserdemo.md) | Forklarer hvordan du åpner og prøver oppdragsoversikten. |

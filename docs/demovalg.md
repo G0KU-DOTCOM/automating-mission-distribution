@@ -43,6 +43,8 @@ Fordelingsfunksjonen for partnerkanalen får bare partnernes person- og ansvarsl
 
 Dette er et skille mellom dataene som funksjonene bruker. Den lokale terminaldemoen har ingen brukerpålogging og etablerer ikke et sikkert flerbrukersystem. Brukeren som har tilgang til prosjektmappen kan lese begge demofilene. Tilgangskontroll i et nettgrensesnitt må bygges og testes i et senere steg.
 
+Nettleserdemoen viser én kanal om gangen og avviser en oppgave-ID som ikke finnes i den valgte kanalens utvalg. Den har fortsatt ingen pålogging; den lokale administratoren kan bytte kanal. Dette er en lesevisning på egen maskin, ikke faktisk tilgangsstyring mellom innloggede brukere.
+
 ## Forslag er ikke levering
 
 Alle resultater er forslag eller saker til manuell avklaring. Ingen oppgave blir opprettet i Planner, og ingen godkjenning registreres. Innlesingsdemoen lagrer lokale oppgaver og følger fristendringer i eksempeldataene. Den sender ikke varsler.
