@@ -219,30 +219,51 @@ def load_indirect_rules(path: Path) -> IndirectRules:
     return IndirectRules(people, _coverage(data, people))
 
 
+def parse_opportunity(raw: dict) -> PreparedOpportunity:
+    """Validate the shared, internal opportunity format before routing."""
+    row = _object(raw, "opportunity")
+    oid = _text(row.get("id"), "opportunity.id")
+    main_trade = _trade(row.get("main_trade"), True)
+    others = tuple(_trade(item) for item in _items(row.get("other_trades", []), "other_trades"))
+    if len(set(others)) != len(others) or main_trade in others:
+        raise DemoDataError(f"{oid}: faglisten inneholder duplikater.")
+    flags = tuple(_text(item, "public_flag") for item in _items(row.get("public_flags", []), "public_flags"))
+    if any(flag not in PUBLIC_FLAGS for flag in flags) or len(set(flags)) != len(flags):
+        raise DemoDataError(f"{oid}: ugyldige eller dupliserte offentlige flagg.")
+    raw_deadline = row.get("deadline")
+    try:
+        deadline = date.fromisoformat(_text(raw_deadline, "deadline")) if raw_deadline is not None else None
+    except ValueError as exc:
+        raise DemoDataError(f"{oid}: deadline må være en gyldig dato i formatet ÅÅÅÅ-MM-DD.") from exc
+    return PreparedOpportunity(
+        oid, _text(row.get("title"), "title"), _text(row.get("buyer_name"), "buyer_name"),
+        _org_number(row.get("buyer_org_number"), True), main_trade, others,
+        _text(row.get("area"), "area", True), deadline, flags,
+    )
+
+
+def opportunity_dict(opportunity: PreparedOpportunity) -> dict:
+    """Represent only shared opportunity fields, never internal customer data."""
+    return {
+        "id": opportunity.id,
+        "title": opportunity.title,
+        "buyer_name": opportunity.buyer_name,
+        "buyer_org_number": opportunity.buyer_org_number,
+        "main_trade": opportunity.main_trade,
+        "other_trades": list(opportunity.other_trades),
+        "area": opportunity.area,
+        "deadline": opportunity.deadline.isoformat() if opportunity.deadline else None,
+        "public_flags": list(opportunity.public_flags),
+    }
+
+
 def load_opportunities(path: Path) -> list[PreparedOpportunity]:
     data = _read(path)
     result, ids = [], set()
     for raw in _items(data.get("opportunities"), "opportunities"):
-        row = _object(raw, "opportunity")
-        oid = _text(row.get("id"), "opportunity.id")
-        if oid in ids:
-            raise DemoDataError(f"Oppdrags-ID {oid} finnes flere ganger i demofilens klargjorte oppdrag.")
-        main_trade = _trade(row.get("main_trade"), True)
-        others = tuple(_trade(item) for item in _items(row.get("other_trades", []), "other_trades"))
-        if len(set(others)) != len(others) or main_trade in others:
-            raise DemoDataError(f"{oid}: faglisten inneholder duplikater.")
-        flags = tuple(_text(item, "public_flag") for item in _items(row.get("public_flags", []), "public_flags"))
-        if any(flag not in PUBLIC_FLAGS for flag in flags) or len(set(flags)) != len(flags):
-            raise DemoDataError(f"{oid}: ugyldige eller dupliserte offentlige flagg.")
-        raw_deadline = row.get("deadline")
-        try:
-            deadline = date.fromisoformat(_text(raw_deadline, "deadline")) if raw_deadline is not None else None
-        except ValueError as exc:
-            raise DemoDataError(f"{oid}: deadline må være en gyldig dato i formatet ÅÅÅÅ-MM-DD.") from exc
-        result.append(PreparedOpportunity(
-            oid, _text(row.get("title"), "title"), _text(row.get("buyer_name"), "buyer_name"),
-            _org_number(row.get("buyer_org_number"), True), main_trade, others,
-            _text(row.get("area"), "area", True), deadline, flags,
-        ))
-        ids.add(oid)
+        opportunity = parse_opportunity(raw)
+        if opportunity.id in ids:
+            raise DemoDataError(f"Oppdrags-ID {opportunity.id} finnes flere ganger i demofilens klargjorte oppdrag.")
+        result.append(opportunity)
+        ids.add(opportunity.id)
     return result

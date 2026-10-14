@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "batch_id": "DEMO-BATCH-002",
+  "description": "Oppdiktet fristendring og nye dokumentlenker fra begge demokildene.",
+  "read_until": {"doffin": "2026-10-14T09:00:00Z", "mercell": "2026-10-14T09:00:00Z"},
+  "records": [
+    {
+      "source": "doffin", "record_id": "DEMO-D-101", "competition_ref": "DEMO-COMP-101",
+      "modified_at": "2026-10-14T08:30:00Z",
+      "opportunity": {
+        "title": "Demo: service på styringsanlegg i Aurora", "buyer_name": "Demo Aurora kommune",
+        "buyer_org_number": "000000101", "main_trade": "BA", "other_trades": [], "area": "Vest",
+        "deadline": "2026-11-27", "public_flags": [], "description": "Oppdiktet rettelse: fristen er utsatt.",
+        "document_urls": ["https://example.invalid/demo-comp-101/rettelse.pdf"], "notice_status": "active"
+      }
+    },
+    {
+      "source": "mercell", "record_id": "DEMO-M-101", "competition_ref": "DEMO-COMP-101",
+      "modified_at": "2026-10-14T08:40:00Z",
+      "opportunity": {
+        "title": "Demo: service på styringsanlegg i Aurora", "buyer_name": "Demo Aurora kommune",
+        "buyer_org_number": "000000101", "main_trade": "BA", "other_trades": [], "area": "Vest",
+        "deadline": "2026-11-27", "public_flags": [], "description": "Oppdiktet rettelse: fristen er utsatt.",
+        "document_urls": ["https://example.invalid/demo-comp-101/beskrivelse.pdf", "https://example.invalid/demo-comp-101/rettelse.pdf"],
+        "notice_status": "active"
+      }
+    }
+  ]
+}

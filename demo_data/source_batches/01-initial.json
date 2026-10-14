@@ -1,0 +1,38 @@
+{
+  "synthetic": true,
+  "batch_id": "DEMO-BATCH-001",
+  "description": "Vårt interne demoformat. Dette er ikke faktiske Doffin- eller Mercell-svar. Fag og områder er satt manuelt.",
+  "read_until": {"doffin": "2026-10-14T08:00:00Z", "mercell": "2026-10-14T08:00:00Z"},
+  "records": [
+    {
+      "source": "doffin", "record_id": "DEMO-D-101", "competition_ref": "DEMO-COMP-101",
+      "modified_at": "2026-10-14T07:30:00Z",
+      "opportunity": {
+        "title": "Demo: service på styringsanlegg i Aurora", "buyer_name": "Demo Aurora kommune",
+        "buyer_org_number": null, "main_trade": "BA", "other_trades": [], "area": null,
+        "deadline": "2026-11-20", "public_flags": [], "description": null,
+        "document_urls": [], "notice_status": "active"
+      }
+    },
+    {
+      "source": "mercell", "record_id": "DEMO-M-101", "competition_ref": "DEMO-COMP-101",
+      "modified_at": "2026-10-14T07:45:00Z",
+      "opportunity": {
+        "title": "Demo: service på styringsanlegg i Aurora", "buyer_name": "Demo Aurora kommune",
+        "buyer_org_number": "000000101", "main_trade": "BA", "other_trades": [], "area": "Vest",
+        "deadline": "2026-11-20", "public_flags": [], "description": "Oppdiktet beskrivelse av servicearbeid.",
+        "document_urls": ["https://example.invalid/demo-comp-101/beskrivelse.pdf"], "notice_status": "active"
+      }
+    },
+    {
+      "source": "doffin", "record_id": "DEMO-D-102", "competition_ref": "DEMO-COMP-102",
+      "modified_at": "2026-10-14T07:50:00Z",
+      "opportunity": {
+        "title": "Demo: vedlikehold av alarmanlegg i Fjordvik", "buyer_name": "Demo Fjordvik kulturhus",
+        "buyer_org_number": "000000202", "main_trade": "FS", "other_trades": [], "area": "Øst",
+        "deadline": "2026-12-03", "public_flags": [], "description": "Oppdiktet beskrivelse av vedlikehold.",
+        "document_urls": [], "notice_status": "active"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "batch_id": "DEMO-BATCH-004",
+  "description": "Oppdiktet kildepost uten felles referanse. Lik innkjøper og tittel, men en annen frist: beholdes separat for kontroll.",
+  "read_until": {"mercell": "2026-10-14T11:00:00Z"},
+  "records": [
+    {
+      "source": "mercell", "record_id": "DEMO-M-999", "competition_ref": null,
+      "modified_at": "2026-10-14T10:30:00Z",
+      "opportunity": {
+        "title": "Demo: service på styringsanlegg i Aurora", "buyer_name": "Demo Aurora kommune",
+        "buyer_org_number": "000000101", "main_trade": "BA", "other_trades": [], "area": "Vest",
+        "deadline": "2026-11-30", "public_flags": [], "description": "Oppdiktet kildepost som trenger identitetskontroll.",
+        "document_urls": [], "notice_status": "active"
+      }
+    }
+  ]
+}

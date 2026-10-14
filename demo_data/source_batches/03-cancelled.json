@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "batch_id": "DEMO-BATCH-003",
+  "description": "Oppdiktet avlysning av den andre konkurransen.",
+  "read_until": {"doffin": "2026-10-14T10:00:00Z"},
+  "records": [
+    {
+      "source": "doffin", "record_id": "DEMO-D-102", "competition_ref": "DEMO-COMP-102",
+      "modified_at": "2026-10-14T09:30:00Z",
+      "opportunity": {
+        "title": "Demo: vedlikehold av alarmanlegg i Fjordvik", "buyer_name": "Demo Fjordvik kulturhus",
+        "buyer_org_number": "000000202", "main_trade": "FS", "other_trades": [], "area": "Øst",
+        "deadline": "2026-12-03", "public_flags": [], "description": "Oppdiktet melding: konkurransen er avlyst.",
+        "document_urls": [], "notice_status": "cancelled"
+      }
+    }
+  ]
+}
