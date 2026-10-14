@@ -2,9 +2,11 @@
 
 Dette er demonstrasjonsvalg. Vi vet ikke hvordan arbeidsgiverens faktiske data eller systemer er organisert.
 
-## Klargjorte oppdrag først
+## Klargjorte og regelvurderte oppdrag
 
-Oppdragene er oppdiktede og har allerede et hovedfag og et område, eller verdien `null` hvis opplysningen er ukjent. Ingen AI eller CPV-analyse har satt disse verdiene. Første del demonstrerer bare fordelingen etter at opplysningene er klargjort.
+De ti første eksempelsakene og kildebatchene 01–04 er oppdiktede og har allerede et hovedfag og et område, eller verdien `null` hvis opplysningen er ukjent. Første del demonstrerer bare fordelingen etter at opplysningene er klargjort.
+
+De åtte `FAG`-sakene og kildebatch 05 bruker i stedet regler for CPV, nøkkelord og oppdiktede kommunekoder. Det er ingen AI. De små tabellene, fagprioriteten og håndteringen av ukjente leveringssteder er demonstrasjonsvalg. [Fagvurderingen](fagvurdering.md) forklarer resultatene og begrensningene.
 
 Fagkodene BA, FS og SE behandles som kategorier i demoen. Vi utvider ikke forkortelsene eller antar at vi kjenner den fullstendige faglisten.
 
@@ -57,7 +59,7 @@ Det nyeste oppgitte endringstidspunktet brukes til å velge kjente feltverdier. 
 
 Manglende verdier sletter ikke tidligere kjent informasjon. Dokumentlenker samles, men filene lastes ikke ned. Sletting av dokumenter og uttrykkelig fjerning av feltverdier er ikke implementert.
 
-Oppdateringer beholder gjeldende mottaker og det opprinnelige tildelingsgrunnlaget. En uavklart oppgave uten mottaker kan få et nytt forslag når tilleggsopplysninger gir en regel. Den beholder samme oppgave-ID. Manuell omfordeling er ikke godkjenning eller levering.
+Oppdateringer beholder gjeldende mottaker og det opprinnelige tildelingsgrunnlaget. Ved endret regelberegnet hovedfag eller område, eller bortfall av relevans, merkes en allerede tildelt oppgave for kontroll. Den slettes eller omfordeles ikke automatisk. En uavklart oppgave uten mottaker kan få et nytt forslag når tilleggsopplysninger gir en regel. Den beholder samme oppgave-ID. Manuell omfordeling er ikke godkjenning eller levering.
 
 Avlysning merker eksisterende lokale oppgaver. En konkurranse som først leses inn som avlyst, lagres uten nye salgsoppgaver. Automatisk gjenåpning av avlyste oppgaver og kontraktstildelinger er ikke implementert.
 

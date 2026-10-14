@@ -21,7 +21,16 @@ Dette er arbeidsgrunnlaget for utviklingen. Fordeling og vedvarende innlesing vi
 - Gjentatte batcher og eldre kildeversjoner lager ikke nye oppgaver eller tilbakeruller nyere data.
 - Hele innlesingen lagres samlet. Ved feil tilbakerulles batchen, og siste vellykkede lesegrense endres ikke.
 
-Brukerpålogging, tilgangskontroll i endepunkter, faktisk API-innhenting, fagklassifisering, godkjenning og ekstern levering gjenstår. Innlesingsdemoen laster ikke ned dokumentfiler.
+## Ferdig i tredje del
+
+- Regelbasert relevans- og fagvurdering fra CPV-koder, tittel og beskrivelse, med synlige treff.
+- Ukjent fag ved bare brede koder og lagret begrunnelse for bortsorterte saker.
+- Hovedfag, øvrige fag, oppdragstype, merkenavn og tidlig fase etter små eksempelregler.
+- Område fra en oppdiktet kommunetabell, med forklaring på leveringssted og eventuell innkjøperreserve.
+- Innlesing av kildeposter uten ferdig utfylt fag og område, koblet til eksisterende fordeling.
+- Endret fagvurdering bevarer gjeldende oppgave og mottaker, med datakontroll når tildelingsgrunnlaget endres.
+
+Brukerpålogging, tilgangskontroll i endepunkter, faktisk API-innhenting, AI, godkjenning og ekstern levering gjenstår. Innlesingsdemoen laster ikke ned dokumentfiler. Kort frist i arbeidsdager, verdi, avtaletype, entrepriseform og spørsmålsfrist er heller ikke implementert. Regelsettet er ikke en fullstendig eller godkjent fagtabell.
 
 ## Avgrensning
 

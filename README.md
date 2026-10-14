@@ -1,108 +1,51 @@
 # Automatisk fordeling av salgsmuligheter
 
-Dette prosjektet skal vise hvordan kunngjøringer fra Doffin og Mercell kan bli til oppgaver hos riktig selger eller partneransvarlig.
+Dette prosjektet viser hvordan en kunngjøring kan bli til en oppgave hos riktig selger eller partneransvarlig. Målet er å redusere manuell fordeling.
 
-Målet er å redusere manuell fordeling og gjøre det tydelig hvem som har ansvar for å følge opp.
+**Alt du ser i demoen er oppdiktet.** Ingen oppgaver eller varsler blir sendt.
 
-## Status nå
+## Hva fungerer nå?
 
-Demoen kan nå lese fiktive kildeposter, samle samme konkurranse, foreslå mottaker og lagre lokale oppgaver. Fristendringer oppdaterer samme oppgave, også etter at mottakeren er byttet manuelt. Gjentatt innlesing lager ikke nye oppgaver for de samme bekreftede konkurransene.
+1. Programmet leser eksempeldata og samler poster som gjelder samme konkurranse.
+2. Regler bruker fagkoder for anskaffelser (CPV), tittel og beskrivelse til å finne fag. Leveringssted brukes til å finne område.
+3. Programmet foreslår mottaker: kundens registrerte selger først i direkte salg, ellers ansvarlig for fag og område. Partnerkanalen bruker sin egen ansvarsliste.
+4. Resultatet lagres lokalt. Nye frister oppdaterer samme oppgave, og gjentatt innlesing lager ikke ekstra oppgaver.
 
-Fag og område er satt på forhånd i eksempeldataene. Det er ingen AI eller tilkobling til Doffin, Mercell, et kundesystem (CRM) eller Microsoft 365 ennå. Grensesnitt, pålogging og godkjenning kommer i senere steg. Oppgavene lagres bare lokalt; ingen varsler eller Planner-oppgaver sendes.
+Programmet forklarer hvilke regler som traff. Ukjent fag går videre til fordeling eller avklaring. Oppdrag uten relevante treff lagres med forklaring og får ingen nye oppgaver.
 
-## Prøv innlesing og fristendring
+## Prøv fagvurderingen
 
-Du trenger Python 3.11 eller nyere. Åpne en terminal i prosjektmappen. Ingen ekstra Python-pakker eller API-nøkler er nødvendig.
-
-```sh
-python3 -m mission_distribution ingest demo_data/source_batches/01-initial.json
-python3 -m mission_distribution ingest demo_data/source_batches/02-update.json
-python3 -m mission_distribution tasks --channel direkte
-```
-
-Første fil har tre fiktive kildeposter som blir til to konkurranser. Andre fil endrer fristen fra 20. til 27. november for én konkurranse. Oppgavene beholder ID og mottaker.
-
-[Se hele gjennomgangen](docs/innlesing.md), inkludert manuell omfordeling, avlysning og usikre duplikater.
-
-## Prøv fordelingsreglene uten lagring
-
-Se forslagene for direkte salg:
+Du trenger Python 3.11 eller nyere. Åpne terminalen i prosjektmappen. Har du aktivert prosjektets venv, kan du bruke `python` i stedet for `python3`. Ingen ekstra pakker eller nøkler trengs.
 
 ```sh
-python3 -m mission_distribution --channel direkte
+python3 -m mission_distribution classify demo_data/classification_examples.json
 ```
 
-Se forslagene for partnerkanalen:
+Du får åtte eksempler med fag, område og begrunnelse. Ett eksempel finner flere fag, ett har ukjent fag, og to sorteres bort etter demoreglene.
+
+## Prøv hele kjeden
 
 ```sh
-python3 -m mission_distribution --channel indirekte
+python3 -m mission_distribution ingest demo_data/source_batches/05-classification.json --db runtime/fagdemo.sqlite3
+python3 -m mission_distribution tasks --channel direkte --db runtime/fagdemo.sqlite3
 ```
 
-Se bare eksemplet der kunden har en selger, men faget er ukjent:
+På en tom database blir ni kildeposter til åtte konkurranser. Seks konkurranser får én lokal oppgave i hver kanal, altså tolv oppgaver. To sorteres bort. Noen oppgaver krever avklaring og har derfor ingen mottaker ennå.
 
-```sh
-python3 -m mission_distribution --channel direkte --scenario DEMO-002
-```
+Bytt `direkte` til `indirekte` for å se partnerkanalens oppgaver. Kommandoen `assessments --db runtime/fagdemo.sqlite3` viser alle lagrede fagvurderinger, også de bortsorterte.
 
-Dette er en lokal demonstrasjon for den som har tilgang til prosjektmappen. Den har ikke brukerpålogging. Ingen oppgaver blir sendt eller godkjent.
+## Hva gjenstår?
 
-## Tre viktige forskjeller
+Demoen har **ingen AI, brukerpålogging eller tilkobling til Doffin, Mercell, CRM eller Microsoft 365**. Den bruker en liten regeltabell som demonstrasjon, ikke arbeidsgiverens faktiske ansvarsdata. Den lokale brukeren kan lese begge kanaler; tilgangsstyring gjenstår.
 
-| Opplysning | Hva den betyr i demoen |
-| --- | --- |
-| Fagtilhørighet og ansvar | En person kan ha flere fagkoder. Hvem som får oppdraget bestemmes likevel av kundeeierskap og den registrerte ansvarstabellen. |
-| Kundekontakt og kundeeierskap | Tidligere kontakt med kunden er en egen opplysning. Den overstyrer ikke en registrert kundeeier. |
-| Aktiv og ledig | En aktiv person kan være opptatt. Demoen viser kapasiteten separat, men bruker den foreløpig ikke til å omfordele oppdrag. |
+Kapasitet og tidligere kundekontakt vises som egne opplysninger, men styrer foreløpig ikke fordelingen. Godkjenning, tilbakemeldinger og nettlesergrensesnitt kommer senere. AI-modell skal velges sammen før den kobles til.
 
-`DEMO-009` viser at en passende fagkode alene ikke erstatter en manglende ansvarsregel. `DEMO-010` viser en aktiv, opptatt kundeeier og en annen person med tidligere kundekontakt. Demoen foreslår fortsatt kundeeieren og viser at kapasitet ikke er vurdert i fordelingen:
+## Les mer hvis du trenger det
 
-```sh
-python3 -m mission_distribution --channel direkte --scenario DEMO-010
-```
+- [Fagvurdering med eksempler](docs/fagvurdering.md)
+- [Prøv duplikater, fristendring og manuell omfordeling](docs/innlesing.md)
+- [Hva gjør filene?](docs/filer.md)
+- [Valgene i demoen](docs/demovalg.md)
+- [Planen videre](docs/utviklingsplan.md)
 
-Regler for kapasitet og prioritering av tidligere kundekontakt må avklares før de kan styre fordelingen.
-
-## Slik skal det fungere
-
-1. **Les inn oppdrag.** Demoen starter med oppdiktede kunngjøringer. Tilkobling til datakildene kommer senere.
-2. **Samle informasjonen.** Samme konkurranse skal behandles som ett oppdrag. Nye opplysninger skal oppdatere det eksisterende oppdraget.
-3. **Finn fag og område.** Programmet bruker regler til å forstå hva oppdraget gjelder og hvor det skal utføres. Vi skal undersøke om AI kan hjelpe med å tolke teksten.
-4. **Finn ansvarlig person.** I direkte salg prioriteres kundens registrerte selger. Ellers brukes fag og område. I salg via partnere brukes en egen oversikt over partneransvarlige.
-5. **Opprett en oppgave.** Mottakeren får oppdraget med en forklaring på hvorfor det ble tildelt. Hvis reglene ikke gir en sikker mottaker, sendes saken til manuell avklaring.
-6. **Følg opp endringer.** Endret frist skal oppdatere samme oppgave. Mottakeren kan også melde fra om feil fag eller feil mottaker.
-
-De to salgskanalene skal ha adskilte oppgaver og interne opplysninger. Ved oppstart skal forslag godkjennes før levering. Senere kan avklarte oppdrag sendes direkte til ansvarlig person, slik at en teamleder slipper å fordele hvert oppdrag videre.
-
-## Et eksempel
-
-En fiktiv kunde har en registrert selger og publiserer et serviceoppdrag. Selgeren får oppgaven i direkte salg. Partnerkanalen vurderer samme offentlige kunngjøring etter sine egne regler og tildeler den til sin partneransvarlige.
-
-Hvis kunden endrer tilbudsfristen, oppdateres de eksisterende oppgavene.
-
-## Microsoft 365
-
-En mulig videreføring er å bruke SharePoint til ansvarslister og dokumenter, og Planner til oppgaver. Tilganger og integrasjoner må avklares og testes før dette kan tas i bruk.
-
-## Filene så langt
-
-| Fil | Hva den brukes til |
-| --- | --- |
-| `README.md` | Forklarer prosjektet og hva som er ferdig. |
-| `.gitignore` | Forteller Git hvilke lokale filer som skal holdes utenfor repoet, blant annet vanlige nøkkelfiler og databaser. |
-| `demo_data/opportunities.json` | De ti oppdiktede, klargjorte oppdragene. |
-| `demo_data/direct_rules.json` | Oppdiktede selgere, kunder og ansvarsområder i direkte salg. |
-| `demo_data/indirect_rules.json` | Partnerkanalens egen oppdiktede ansvarsliste. |
-| `demo_data/source_batches/` | Fiktive kildeposter for første innlesing, fristendring, avlysning og mulig duplikat. |
-| `mission_distribution/models.py` | Leser data og stopper ugyldige ansvarslister. |
-| `mission_distribution/routing.py` | Foreslår mottaker og forklarer hvilken regel som ble brukt. |
-| `mission_distribution/source_data.py` | Kontrollerer kildepostene i vårt eget demoformat. |
-| `mission_distribution/ingestion.py` | Samler konkurranser og oppdaterer oppgaver med samme ID og eier. |
-| `mission_distribution/storage.py` | Lagrer kildeposter, oppgaver og historikk i en lokal database. |
-| `mission_distribution/workflow_cli.py` | Lar deg lese inn, se oppgaver og bytte mottaker fra terminalen. |
-| `mission_distribution/__main__.py` | Lar deg kjøre demoen fra terminalen. |
-| `tests/` | Kontrollerer at regler og eksempelsaker gir riktig resultat. |
-| [Demovalg](docs/demovalg.md) | Forklarer forenklinger og valg vi har gjort selv. |
-| [Innlesing steg for steg](docs/innlesing.md) | Viser hvordan du demonstrerer duplikatkontroll og oppdateringer. |
-| [Utviklingsplan](docs/utviklingsplan.md) | Beskriver kravene vi bygger og kontrollerer steg for steg. |
-
-Kjør kontrollene med `python3 -m unittest discover -s tests -v`.
+Kjør testene med `python3 -m unittest discover -s tests`.
