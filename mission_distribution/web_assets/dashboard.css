@@ -28,7 +28,7 @@ h2 { margin: 0; font-size: 20px; letter-spacing: -.4px; line-height: 1.35; }
 .channel-intro p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 .refresh { display: inline-block; padding: 8px 12px; border: 1px solid var(--line); border-radius: 7px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; background: white; }
 .refresh:hover { border-color: var(--accent); }
-.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
 .metric { display: flex; flex-direction: column; padding: 17px 20px; background: white; border: 1px solid var(--line); border-radius: 9px; }
 .metric span { font-size: 12px; color: var(--muted); }
 .metric strong { margin-top: 4px; font-size: 30px; font-weight: 600; line-height: 1.25; }
@@ -63,6 +63,19 @@ tbody tr:hover { background: #f4f9f6; }
 .pill.uavklart { background: #fff1d5; color: #835e15; }
 .pill.kontroll { background: #fcebe6; color: #934631; }
 .pill.avlyst { background: #edf0f4; color: #647083; }
+.pill.godkjent { background: #d7eee5; color: #185744; }
+.pill.ny_godkjenning { background: #fff1d5; color: #835e15; }
+.actions { background: #f5f9f5; }
+.action-row { display: flex; align-items: center; gap: 8px; }
+.action-row select { flex: 1; }
+.action-row button { white-space: nowrap; }
+.approval-action { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.approval-confirmed { background: #e5f3ec; border: 1px solid #bedaca; border-radius: 7px; padding: 12px; color: #216448; }
+.approval-confirmed p { font-size: 11px; margin-bottom: 0; }
+.approval-blocked { color: #835e15; font-size: 12px; }
+button:disabled { cursor: not-allowed; background: #dde5df; color: #566b60; }
+.checkbox { display: flex; align-items: start; gap: 9px; font-size: 12px; font-weight: 450; margin-bottom: 12px; color: var(--ink); }
+.checkbox input { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
 .table-note { font-size: 11px; color: var(--muted); padding: 12px 22px; margin: 0; }
 .detail-top { padding: 22px; background: #f8faf7; border-bottom: 1px solid var(--line); }
 .detail-top .eyebrow { margin-bottom: 8px; }

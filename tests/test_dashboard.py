@@ -144,7 +144,7 @@ class DashboardTests(DashboardFixture):
 
     def test_query_rejects_ambiguous_channels_or_unexpected_parameters(self):
         for params in ({"channel": ["other"]}, {"channel": ["direkte", "indirekte"]},
-                       {"db": ["private.sqlite3"]}, {"status": ["godkjent"]}, {"q": ["x" * 201]}):
+                       {"db": ["private.sqlite3"]}, {"status": ["sendt"]}, {"q": ["x" * 201]}):
             with self.subTest(params=params), self.assertRaises(DemoDataError):
                 DashboardQuery.parse(params)
 
@@ -174,6 +174,7 @@ class DashboardHttpTests(DashboardFixture):
             self.assertIn("Partnerkanalen", page)
             self.assertNotIn("Demo Anna", page)
             self.assertEqual(response.getheader("Cache-Control"), "no-store")
+            self.assertEqual(response.getheader("Referrer-Policy"), "same-origin")
             self.assertIn("default-src 'none'", response.getheader("Content-Security-Policy"))
             client.request("GET", "/assets/dashboard.css")
             response = client.getresponse()

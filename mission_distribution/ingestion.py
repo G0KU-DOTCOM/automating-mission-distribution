@@ -2,6 +2,7 @@
 
 import json
 
+from .approval import advance_review_version, invalidate_approval
 from .classification import ClassificationRules, classify, parse_classification_input
 from .models import Channel, DemoDataError, DirectRules, IndirectRules, parse_opportunity
 from .routing import Decision, route_direct, route_indirect
@@ -177,9 +178,15 @@ def _update_tasks(store: DemoStore, competition_id: str, before: dict, after: di
             store.add_event(task["task_id"], "forslag_opprettet", {"reason_code": task["reason_code"]})
             created += 1
             continue
-        if not changed and not review_changed and not classification_changed:
-            continue
         task = json.loads(row["payload_json"])
+        if not changed and not review_changed and not classification_changed:
+            if invalidate_approval(task, after, "Kildegrunnlaget er oppdatert."):
+                advance_review_version(task)
+                store.add_event(task["task_id"], "godkjenning_utdatert", {"reason": "Kildegrunnlaget er oppdatert."})
+                store.connection.execute("UPDATE tasks SET payload_json = ? WHERE id = ? AND channel = ?",
+                                         (json_text(task), row["id"], channel.value))
+                updated += 1
+            continue
         # An assigned task keeps its current owner, including a manual reassignment.
         if task["owner"] is None and task["assignment_type"] == "regel" and new_public["notice_status"] != "cancelled" and should_route:
             proposal = _proposal(after, channel, direct, indirect)
@@ -218,6 +225,9 @@ def _update_tasks(store: DemoStore, competition_id: str, before: dict, after: di
                 "current": after.get("classification", {}).get("relevance"),
                 "main_trade": new_public["main_trade"],
             })
+        advance_review_version(task)
+        if invalidate_approval(task, after, "Opplysningene om konkurransen er endret."):
+            store.add_event(task["task_id"], "godkjenning_utdatert", {"reason": "Opplysningene om konkurransen er endret."})
         store.connection.execute("UPDATE tasks SET payload_json = ? WHERE id = ? AND channel = ?",
                                  (json_text(task), row["id"], channel.value))
         updated += 1

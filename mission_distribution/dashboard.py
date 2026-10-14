@@ -1,15 +1,17 @@
-"""Read-only Norwegian dashboard, rendered without JavaScript or external assets."""
+"""Norwegian local dashboard, rendered without JavaScript or external assets."""
 
 from dataclasses import dataclass
 from datetime import date, datetime
 from html import escape
 from urllib.parse import urlencode, urlsplit
 
-from .models import Channel, DemoDataError
+from .approval import approval_blocker, approval_current, review_revision
+from .models import Channel, DemoDataError, Person
 
 
 STATUS_LABELS = {"alle": "Alle oppgaver", "forslag": "Mottaker foreslått", "uavklart": "Til avklaring",
-                 "kontroll": "Datakontroll", "avlyst": "Avlyst"}
+                 "kontroll": "Datakontroll", "godkjent": "Godkjent lokalt",
+                 "ny_godkjenning": "Må godkjennes på nytt", "avlyst": "Avlyst"}
 FIELDS = {"buyer_org_number": "innkjøpers organisasjonsnummer", "main_trade": "hovedfag", "area": "område",
           "deadline": "tilbudsfrist", "main_cpv": "hoved-CPV", "buyer_municipality": "innkjøpers kommune",
           "notice_kind": "kunngjøringstype", "description": "beskrivelse", "title": "tittel",
@@ -35,7 +37,17 @@ def task_status(task: dict) -> str:
         return "avlyst"
     if task.get("data_review_required"):
         return "kontroll"
+    if approval_current(task, task["public_opportunity"]):
+        return "godkjent"
+    if task.get("approval"):
+        return "ny_godkjenning"
     return "forslag" if task["owner"] else "uavklart"
+
+
+@dataclass(frozen=True)
+class DashboardActions:
+    people: tuple[Person, ...]
+    csrf_token: str
 
 
 @dataclass(frozen=True)
@@ -114,10 +126,49 @@ def _event(event: dict) -> str:
     if kind == "fagvurdering_endret":
         labels = {"relevant": "relevant", "fag_ukjent": "ukjent fag", "ikke_relevant": "uten relevante treff"}
         return f"Fagvurdering oppdatert: {labels.get(details['current'], 'ukjent')}. Hovedfag: {details['main_trade'] or 'ukjent'}."
+    if kind == "godkjent_lokalt":
+        instant = datetime.fromisoformat(details["at"]).strftime("%d.%m.%Y %H:%M UTC")
+        return f"Forslaget til {details['owner_id']} er godkjent lokalt av demobruker uten pålogging ({instant}). Ingen levering."
+    if kind == "godkjenning_utdatert":
+        return "Tidligere godkjenning gjelder ikke lenger: " + details["reason"]
+    if kind == "datakontroll_bekreftet":
+        return "Lokal demobruker har bekreftet kontroll av det endrede tildelingsgrunnlaget."
     return "Oppgaven har en registrert historikkhendelse."
 
 
-def _detail(task: dict) -> str:
+def _controls(task: dict, actions: DashboardActions) -> str:
+    public = task["public_opportunity"]
+    if task["lifecycle"] != "aktiv":
+        return '<section class="detail-section"><h3>Avlyst konkurranse</h3><p>Mottakerbytte og godkjenning er ikke tilgjengelig.</p></section>'
+    fields = {"csrf_token": actions.csrf_token, "channel": task["channel"], "task_id": task["task_id"],
+              "expected_revision": review_revision(task, public)}
+    hidden = "".join(f'<input type="hidden" name="{key}" value="{text(value)}">' for key, value in fields.items())
+    people = {person.id: person for person in actions.people if person.active and person.channel.value == task["channel"]}
+    owner_id = task["owner"]["id"] if task["owner"] else ""
+    options = '<option value="">Velg en aktiv mottaker</option>'
+    options += _options({person.id: person.name + " · " + (", ".join(person.trade_codes) or "fag ikke oppgitt")
+                         for person in sorted(people.values(), key=lambda person: person.name.casefold())}, owner_id)
+    blocked = approval_blocker(task, public)
+    if blocked is None and owner_id not in people:
+        blocked = "Mottakeren er ikke aktiv i ansvarsliste for denne kanalen. Velg en aktiv mottaker først."
+    if blocked:
+        approval_html = f'<p class="approval-blocked">{text(blocked)}</p><button type="button" disabled>Godkjenn lokalt</button>'
+    elif approval_current(task, public):
+        instant = datetime.fromisoformat(task["approval"]["approved_at"]).strftime("%d.%m.%Y %H:%M UTC")
+        approval_html = f'<div class="approval-confirmed"><strong>Godkjent lokalt</strong><p>{text(instant)} · lokal demobruker uten pålogging.</p><p>Ingen oppgave eller varsel er sendt.</p></div>'
+    else:
+        review = ('<label class="checkbox"><input type="checkbox" name="acknowledge_review" value="yes" required>'
+                  '<span>Jeg har kontrollert de endrede opplysningene og mener valgt mottaker er riktig.</span></label>') if task.get("data_review_required") else ""
+        outdated = '<p class="approval-blocked">Tidligere godkjenning gjelder ikke lenger. Se gjennom det oppdaterte forslaget.</p>' if task.get("approval") else ""
+        approval_html = f'{outdated}<form method="post" action="/actions/approve">{hidden}{review}<button type="submit">Godkjenn lokalt</button></form>'
+    return f'''<section class="detail-section actions"><h3>Kontroller forslaget</h3>
+      <form method="post" action="/actions/reassign">{hidden}<label for="person_id">Mottaker i denne kanalen</label>
+      <div class="action-row"><select id="person_id" name="person_id" required>{options}</select><button type="submit">Lagre mottaker</button></div></form>
+      <p class="muted">Bare aktive mottakere fra denne kanalen vises. Endringen gjelder denne oppgaven, ikke ansvarstabellen. Et mottakerbytte må godkjennes separat.</p>
+      <div class="approval-action">{approval_html}</div></section>'''
+
+
+def _detail(task: dict, actions: DashboardActions | None = None) -> str:
     stored, public = task["public_opportunity"], task["public_opportunity"]["opportunity"]
     assessment = stored.get("classification")
     owner = task["owner"]
@@ -166,12 +217,16 @@ def _detail(task: dict) -> str:
     document_html = ('<ul class="evidence">' + "".join(documents) + "</ul>"
                      '<p class="muted">Dette er eksempellenker. Ingen dokumentfiler er lastet ned.</p>') if documents else '<p class="muted">Ingen dokumentlenker er oppgitt.</p>'
     events = "".join(f"<li>{text(_event(event))}</li>" for event in reversed(task["events"]))
+    controls = _controls(task, actions) if actions else ""
+    foot = ("Godkjenning lagres bare lokalt. Ingen oppgave eller varsel er sendt." if actions
+            else "Dette er en lesevisning. Ingen oppgave eller varsel er sendt.")
     return f'''<aside class="detail" aria-labelledby="detail-heading">
       <div class="detail-top"><p class="eyebrow">VALGT OPPDRAG</p>{_pill(STATUS_LABELS[task_status(task)], task_status(task))}
       <h2 id="detail-heading">{text(task['title'])}</h2><p class="reference">{text(task['competition_ref'] or 'Uten konkurransereferanse')}</p></div>
       <section class="detail-section"><h3>{'Hvorfor denne mottakeren?' if owner else 'Hvorfor må oppdraget avklares?'}</h3><p class="owner">{text(owner_name)}</p>
       <p>{explanation}</p>{capacity}<p class="rule-code">Årsak: {text(task['reason_code'])}</p>{flags}</section>
       {warning_html}
+      {controls}
       <section class="detail-section"><h3>Fag og område</h3><dl class="facts">
       <div><dt>Hovedfag</dt><dd>{text(task['main_trade'] or 'Ukjent')}</dd></div>
       <div><dt>Øvrige fag</dt><dd>{text(', '.join(public['other_trades']) or 'Ingen')}</dd></div>
@@ -186,11 +241,12 @@ def _detail(task: dict) -> str:
       <details class="detail-section"><summary>Historikk i denne kanalen <span class="muted">({len(task['events'])})</span></summary>
       <ol class="history">{events or '<li>Ingen hendelser registrert.</li>'}</ol>
       <p class="reference">Oppgave-ID: {text(task['task_id'])}</p></details>
-      <div class="detail-foot">Forslaget er ikke godkjent eller sendt. Denne visningen endrer ingen data.</div>
+      <div class="detail-foot">{foot}</div>
     </aside>'''
 
 
-def render_dashboard(tasks: list[dict], assessments: list[dict], query: DashboardQuery) -> str:
+def render_dashboard(tasks: list[dict], assessments: list[dict], query: DashboardQuery,
+                     actions: DashboardActions | None = None) -> str:
     own = [task for task in tasks if task["channel"] == query.channel.value]
     visible = filter_tasks(own, query)
     chosen = next((task for task in visible if task["task_id"] == query.selected), None) if query.selected else (visible[0] if visible else None)
@@ -207,7 +263,8 @@ def render_dashboard(tasks: list[dict], assessments: list[dict], query: Dashboar
         tab_items.append(f'<a class="channel-tab{" current" if current else ""}" '
                          f'href="{text(DashboardQuery(channel=channel).url())}"{aria}>{label}</a>')
     tabs = "".join(tab_items)
-    metrics = [("Oppgaver i kanalen", len(own)), ("Mottaker foreslått", sum(task_status(task) == "forslag" for task in own)),
+    metrics = [("Oppgaver i kanalen", len(own)), ("Venter godkjenning", sum(task_status(task) in {"forslag", "ny_godkjenning"} for task in own)),
+               ("Godkjent lokalt", sum(task_status(task) == "godkjent" for task in own)),
                ("Til avklaring", sum(task_status(task) == "uavklart" for task in own)),
                ("Datakontroll", sum(task_status(task) == "kontroll" for task in own))]
     metrics_html = "".join(f'<div class="metric"><span>{text(label)}</span><strong>{count}</strong></div>' for label, count in metrics)
@@ -238,7 +295,7 @@ def render_dashboard(tasks: list[dict], assessments: list[dict], query: Dashboar
     excluded = (f'<details class="discarded"><summary>Bortsorterte konkurranser <span class="count">{len(discarded)}</span></summary>'
                 '<p class="muted">Ingen treff i demoreglene er ikke et bevis på at oppdraget er irrelevant i virkeligheten. '
                 'Her vises bare offentlig faggrunnlag.</p><ul>' + discarded_html + '</ul></details>') if discarded else ""
-    detail = _detail(chosen) if chosen else '<aside class="detail empty"><h2>Oppdragsdetaljer</h2><p>Velg et oppdrag når det finnes i utvalget.</p></aside>'
+    detail = _detail(chosen, actions) if chosen else '<aside class="detail empty"><h2>Oppdragsdetaljer</h2><p>Velg et oppdrag når det finnes i utvalget.</p></aside>'
     return f'''<!doctype html><html lang="nb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{channel_name} · Oppdragsfordeling</title><link rel="stylesheet" href="/assets/dashboard.css"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"></head>
     <body><a class="skip" href="#main">Hopp til oppdragene</a>
@@ -261,7 +318,7 @@ def render_dashboard(tasks: list[dict], assessments: list[dict], query: Dashboar
     <button type="submit">Vis</button><a class="reset" href="{text(DashboardQuery(channel=query.channel).url())}">Nullstill</a></form>
     {table}<p class="table-note">Klikk på et oppdrag for å se begrunnelse og historikk.</p>{excluded}</section>{detail}</div>
     <footer>Alle mottakere, kunder og oppdrag er fiktive. Fag- og områdetabellene er demonstrasjonsvalg.
-    <span>Godkjenning og tilbakemeldinger kommer i neste steg.</span></footer></main></body></html>'''
+    <span>Godkjenninger gjelder bare den lokale demoen. Tilbakemeldinger og ekstern levering gjenstår.</span></footer></main></body></html>'''
 
 
 def render_error(message: str) -> str:

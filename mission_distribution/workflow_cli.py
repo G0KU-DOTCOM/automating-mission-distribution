@@ -6,6 +6,7 @@ from pathlib import Path
 import sqlite3
 
 from .ingestion import ingest_batch
+from .approval import approval_current
 from .classification import classify, load_classification_cases, load_classification_rules
 from .models import Channel, DemoDataError, load_direct_rules, load_indirect_rules
 from .source_data import load_source_batch
@@ -53,6 +54,10 @@ def _print_tasks(tasks: list[dict], channel: Channel) -> None:
         print(f"  Konkurransereferanse: {task['competition_ref'] or 'ikke oppgitt'}")
         print(f"  Tilbudsfrist: {task['deadline'] or 'ukjent'}")
         print(f"  Tilstand: {task['lifecycle']} — ikke levert")
+        if approval_current(task, public):
+            print("  Godkjenning: godkjent lokalt av demobruker uten pålogging — ikke levert")
+        elif task.get("approval"):
+            print("  Godkjenning: tidligere godkjenning gjelder ikke lenger")
         owner = task["owner"]
         if owner:
             print(f"  Mottaker: {owner['name']} ({owner['id']})")

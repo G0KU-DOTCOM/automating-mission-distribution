@@ -5,6 +5,8 @@ from pathlib import Path
 import sqlite3
 from uuid import uuid4
 
+from .approval import (StaleProposalError, advance_review_version, approval_blocker, approval_current, invalidate_approval,
+                       now_utc, review_revision)
 from .models import Channel, DemoDataError, Person
 from .source_data import json_text
 
@@ -119,17 +121,33 @@ class DemoStore:
                                "classification": public["classification"]})
         return result
 
-    def reassign(self, task_id: str, channel: Channel, person: Person) -> dict:
+    def _proposal_for_action(self, task_id: str, channel: Channel, expected_revision: str | None,
+                             allow_approved_replay: bool = False) -> tuple[dict, dict]:
+        row = self.connection.execute("""
+            SELECT t.payload_json, c.payload_json AS public_json FROM tasks t
+            JOIN competitions c ON c.id = t.competition_id WHERE t.id = ? AND t.channel = ?
+        """, (task_id, channel.value)).fetchone()
+        if row is None:
+            raise DemoDataError("Oppgaven finnes ikke i den valgte kanalen.")
+        task, public = json.loads(row["payload_json"]), json.loads(row["public_json"])
+        if expected_revision is not None and expected_revision != review_revision(task, public):
+            replay = (allow_approved_replay and approval_current(task, public)
+                      and task["approval"].get("request_revision") == expected_revision)
+            if not replay:
+                raise StaleProposalError("Oppgaven er endret siden du åpnet siden. Oppdater oversikten og se gjennom forslaget på nytt.")
+        return task, public
+
+    def reassign(self, task_id: str, channel: Channel, person: Person, expected_revision: str | None = None) -> dict:
         if person.channel != channel or not person.active:
             raise DemoDataError("Manuell mottaker må være aktiv og tilhøre den valgte kanalen.")
         with self.connection:
             self.connection.execute("BEGIN IMMEDIATE")
-            row = self.connection.execute("SELECT payload_json FROM tasks WHERE id = ? AND channel = ?",
-                                          (task_id, channel.value)).fetchone()
-            if row is None:
-                raise DemoDataError("Oppgaven finnes ikke i den valgte kanalen.")
-            task = json.loads(row["payload_json"])
+            task, public = self._proposal_for_action(task_id, channel, expected_revision)
+            if task["lifecycle"] != "aktiv":
+                raise DemoDataError("Mottakeren kan ikke endres på en avlyst oppgave.")
             old_owner = task["owner"]
+            if old_owner and old_owner["id"] == person.id:
+                return task
             task["owner"] = {"id": person.id, "name": person.name,
                              "trade_codes": list(person.trade_codes), "active": person.active,
                              "capacity": person.capacity.value}
@@ -137,12 +155,45 @@ class DemoStore:
             task["reason_code"] = "MANUELL_TILDELING"
             task["explanation"] = "Mottakeren er valgt manuelt i denne kanalen. Senere oppdateringer følger denne mottakeren."
             task["assignment_type"] = "manuell"
+            advance_review_version(task)
+            if invalidate_approval(task, public, "Mottakeren er endret manuelt."):
+                self.add_event(task_id, "godkjenning_utdatert", {"reason": "Mottakeren er endret manuelt."})
             self.connection.execute("UPDATE tasks SET payload_json = ? WHERE id = ? AND channel = ?",
                                     (json_text(task), task_id, channel.value))
             self.add_event(task_id, "manuelt_omfordelt", {
                 "previous_owner_id": old_owner["id"] if old_owner else None,
                 "new_owner_id": person.id,
             })
+        return task
+
+    def approve(self, task_id: str, channel: Channel, people: dict[str, Person], expected_revision: str,
+                acknowledge_review: bool = False) -> dict:
+        with self.connection:
+            self.connection.execute("BEGIN IMMEDIATE")
+            task, public = self._proposal_for_action(task_id, channel, expected_revision, allow_approved_replay=True)
+            blocker = approval_blocker(task, public)
+            if blocker:
+                raise DemoDataError(blocker)
+            person = people.get(task["owner"]["id"])
+            if person is None or person.channel != channel or not person.active:
+                raise DemoDataError("Mottakeren må fortsatt være aktiv i denne kanalens ansvarsliste.")
+            if task.get("data_review_required") and acknowledge_review is not True:
+                raise DemoDataError("Bekreft at du har kontrollert de endrede opplysningene før godkjenning.")
+            if approval_current(task, public):
+                return task
+            if task.get("data_review_required"):
+                task.update(data_review_required=False, classification_review_required=False)
+                self.add_event(task_id, "datakontroll_bekreftet", {"actor": "lokal_demobruker", "at": now_utc()})
+            approved_at = now_utc()
+            advance_review_version(task)
+            task["approval"] = {"state": "godkjent", "review_revision": review_revision(task, public),
+                                "request_revision": expected_revision,
+                                "owner_id": person.id, "approved_at": approved_at,
+                                "actor": "lokal_demobruker"}
+            self.connection.execute("UPDATE tasks SET payload_json = ? WHERE id = ? AND channel = ?",
+                                    (json_text(task), task_id, channel.value))
+            self.add_event(task_id, "godkjent_lokalt", {"owner_id": person.id, "at": approved_at,
+                                                      "actor": "lokal_demobruker"})
         return task
 
     @staticmethod
