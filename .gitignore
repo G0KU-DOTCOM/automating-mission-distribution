@@ -1,0 +1,32 @@
+# Python interpreter and tool output
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Local credentials; a placeholder example may be tracked later
+.env
+.env.*
+!.env.example
+local.settings.json
+
+# Local runtime state and private source material
+runtime/
+private-data/
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Operating system files
+.DS_Store
+Thumbs.db
