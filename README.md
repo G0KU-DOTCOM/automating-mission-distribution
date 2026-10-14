@@ -6,13 +6,25 @@ Målet er å redusere manuell fordeling og gjøre det tydelig hvem som har ansva
 
 ## Status nå
 
-Første del virker nå: Programmet leser ti oppdiktede oppdrag og foreslår en ansvarlig person, eller manuell avklaring, med en begrunnelse.
+Demoen kan nå lese fiktive kildeposter, samle samme konkurranse, foreslå mottaker og lagre lokale oppgaver. Fristendringer oppdaterer samme oppgave, også etter at mottakeren er byttet manuelt. Gjentatt innlesing lager ikke nye oppgaver for de samme bekreftede konkurransene.
 
-Fag og område er satt på forhånd i eksempeldataene. Det er ingen AI eller tilkobling til Doffin, Mercell, et kundesystem (CRM) eller Microsoft 365 ennå. Grensesnitt, godkjenning, duplikatkontroll og oppdatering av oppgaver kommer i senere steg.
+Fag og område er satt på forhånd i eksempeldataene. Det er ingen AI eller tilkobling til Doffin, Mercell, et kundesystem (CRM) eller Microsoft 365 ennå. Grensesnitt, pålogging og godkjenning kommer i senere steg. Oppgavene lagres bare lokalt; ingen varsler eller Planner-oppgaver sendes.
 
-## Prøv demoen
+## Prøv innlesing og fristendring
 
 Du trenger Python 3.11 eller nyere. Åpne en terminal i prosjektmappen. Ingen ekstra Python-pakker eller API-nøkler er nødvendig.
+
+```sh
+python3 -m mission_distribution ingest demo_data/source_batches/01-initial.json
+python3 -m mission_distribution ingest demo_data/source_batches/02-update.json
+python3 -m mission_distribution tasks --channel direkte
+```
+
+Første fil har tre fiktive kildeposter som blir til to konkurranser. Andre fil endrer fristen fra 20. til 27. november for én konkurranse. Oppgavene beholder ID og mottaker.
+
+[Se hele gjennomgangen](docs/innlesing.md), inkludert manuell omfordeling, avlysning og usikre duplikater.
+
+## Prøv fordelingsreglene uten lagring
 
 Se forslagene for direkte salg:
 
@@ -80,11 +92,17 @@ En mulig videreføring er å bruke SharePoint til ansvarslister og dokumenter, o
 | `demo_data/opportunities.json` | De ti oppdiktede, klargjorte oppdragene. |
 | `demo_data/direct_rules.json` | Oppdiktede selgere, kunder og ansvarsområder i direkte salg. |
 | `demo_data/indirect_rules.json` | Partnerkanalens egen oppdiktede ansvarsliste. |
+| `demo_data/source_batches/` | Fiktive kildeposter for første innlesing, fristendring, avlysning og mulig duplikat. |
 | `mission_distribution/models.py` | Leser data og stopper ugyldige ansvarslister. |
 | `mission_distribution/routing.py` | Foreslår mottaker og forklarer hvilken regel som ble brukt. |
+| `mission_distribution/source_data.py` | Kontrollerer kildepostene i vårt eget demoformat. |
+| `mission_distribution/ingestion.py` | Samler konkurranser og oppdaterer oppgaver med samme ID og eier. |
+| `mission_distribution/storage.py` | Lagrer kildeposter, oppgaver og historikk i en lokal database. |
+| `mission_distribution/workflow_cli.py` | Lar deg lese inn, se oppgaver og bytte mottaker fra terminalen. |
 | `mission_distribution/__main__.py` | Lar deg kjøre demoen fra terminalen. |
 | `tests/` | Kontrollerer at regler og eksempelsaker gir riktig resultat. |
 | [Demovalg](docs/demovalg.md) | Forklarer forenklinger og valg vi har gjort selv. |
+| [Innlesing steg for steg](docs/innlesing.md) | Viser hvordan du demonstrerer duplikatkontroll og oppdateringer. |
 | [Utviklingsplan](docs/utviklingsplan.md) | Beskriver kravene vi bygger og kontrollerer steg for steg. |
 
 Kjør kontrollene med `python3 -m unittest discover -s tests -v`.

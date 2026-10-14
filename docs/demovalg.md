@@ -43,7 +43,25 @@ Dette er et skille mellom dataene som funksjonene bruker. Den lokale terminaldem
 
 ## Forslag er ikke levering
 
-Alle resultater er forslag eller saker til manuell avklaring. Ingen oppgave blir opprettet i Planner, og ingen godkjenning registreres. Datoene er eksempeldata; fristendringer behandles ikke i denne første versjonen.
+Alle resultater er forslag eller saker til manuell avklaring. Ingen oppgave blir opprettet i Planner, og ingen godkjenning registreres. Innlesingsdemoen lagrer lokale oppgaver og følger fristendringer i eksempeldataene. Den sender ikke varsler.
+
+## Innlesing og oppdateringer
+
+Innlesingsdemoen bruker vårt eget format for fiktive kildeposter. Feltene for kilde-ID, felles konkurransereferanse og endringstid er demonstrasjonsdata. Vi har ikke bekreftet tilsvarende felter eller garantier i de virkelige API-ene.
+
+En lokal database bevarer konkurranser, kildeversjoner, oppgaver og kanalvis historikk. En kjent kilde-ID eller felles referanse beholder konkurransens identitet ved fristendring. Uten disse bruker demoen kombinasjonen organisasjonsnummer, normalisert tittel og frist hvis den gir ett entydig treff. Det er en demoregel og ingen garanti for at slike poster faktisk gjelder samme konkurranse.
+
+Hvis bare innkjøper og tittel matcher, eller kombinasjonsnøkkelen gir flere treff, opprettes en separat konkurranse med flagget `MULIG_DUPLIKAT`. Automatisk sammenslåing av slike saker er ikke implementert.
+
+Det nyeste oppgitte endringstidspunktet brukes til å velge kjente feltverdier. Dette er et eksplisitt demovalg, ikke en antakelse om at en bestemt kilde alltid er korrekt. Motstridende sentrale opplysninger vises som konflikt. Nye konfliktsaker får årsaken `DATA_KONFLIKT` og krever avklaring. Eksisterende oppgaver beholder mottakeren og merkes for datakontroll.
+
+Manglende verdier sletter ikke tidligere kjent informasjon. Dokumentlenker samles, men filene lastes ikke ned. Sletting av dokumenter og uttrykkelig fjerning av feltverdier er ikke implementert.
+
+Oppdateringer beholder gjeldende mottaker og det opprinnelige tildelingsgrunnlaget. En uavklart oppgave uten mottaker kan få et nytt forslag når tilleggsopplysninger gir en regel. Den beholder samme oppgave-ID. Manuell omfordeling er ikke godkjenning eller levering.
+
+Avlysning merker eksisterende lokale oppgaver. En konkurranse som først leses inn som avlyst, lagres uten nye salgsoppgaver. Automatisk gjenåpning av avlyste oppgaver og kontraktstildelinger er ikke implementert.
+
+Databasen er kun for en lokal administratordemo. Kanalfiltrering av oppgaver og historikk er kontrollert med tester, men erstatter ikke brukerpålogging eller tilgangsstyring i et produksjonssystem.
 
 ## De ti eksempelsakene
 

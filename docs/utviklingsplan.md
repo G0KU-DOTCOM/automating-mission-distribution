@@ -1,6 +1,6 @@
 # Utviklingsplan for prototypen
 
-Dette er arbeidsgrunnlaget for utviklingen. Første del av fordelingskoden virker med oppdiktede, klargjorte oppdrag. Kravene under gjelder hele prototypen og er ikke alle implementert ennå.
+Dette er arbeidsgrunnlaget for utviklingen. Fordeling og vedvarende innlesing virker med oppdiktede data. Kravene under gjelder hele prototypen og er ikke alle implementert ennå.
 
 ## Ferdig i første del
 
@@ -10,7 +10,18 @@ Dette er arbeidsgrunnlaget for utviklingen. Første del av fordelingskoden virke
 - En terminaldemo og tester av eksempelsakene.
 - Egne personfagkoder, opplysninger om tidligere kundekontakt og kapasitetsstatus, tydelig adskilt fra reglene som bestemmer ansvar.
 
-Brukerpålogging, tilgangskontroll i endepunkter, innhenting fra kilder, klassifisering, oppdateringer av oppgaver, godkjenning og faktisk levering gjenstår.
+## Ferdig i andre del
+
+- Validerte, fiktive kildeposter i vårt eget format.
+- Felles konkurransepost med kildereferanser, feltopprinnelse, manglende informasjon og synlige konflikter.
+- Duplikatkontroll med stabile kilde-ID-er, felles referanser og en dokumentert kombinasjonsnøkkel.
+- Usikre duplikater beholdes separat og merkes for kontroll.
+- Lokale oppgaver med stabile ID-er, endret frist, dokumentlenker, avlysning og kanalvis historikk.
+- Manuell omfordeling som bevares ved neste oppdatering.
+- Gjentatte batcher og eldre kildeversjoner lager ikke nye oppgaver eller tilbakeruller nyere data.
+- Hele innlesingen lagres samlet. Ved feil tilbakerulles batchen, og siste vellykkede lesegrense endres ikke.
+
+Brukerpålogging, tilgangskontroll i endepunkter, faktisk API-innhenting, fagklassifisering, godkjenning og ekstern levering gjenstår. Innlesingsdemoen laster ikke ned dokumentfiler.
 
 ## Avgrensning
 
