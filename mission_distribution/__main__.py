@@ -36,11 +36,17 @@ def main() -> None:
         return
     print(f"LOKAL DEMO — oppdiktede data — {args.channel} kanal")
     print("Dette er forslag. Ingen oppgaver er levert eller godkjent.\n")
+    print("Aktiv status og ledig kapasitet er forskjellige opplysninger.")
+    print("Kapasitet er demodata og brukes ikke til å omfordele oppdrag i denne versjonen.\n")
     for decision in decisions:
         owner = f"{decision.owner.name} ({decision.owner.id})" if decision.owner else "Manuell avklaring"
         print(f"{decision.opportunity_id}: {decision.title}")
         print(f"  Mottaker: {owner}")
         print(f"  Årsak: {decision.reason_code} — {decision.explanation}")
+        if decision.owner:
+            trades = ", ".join(decision.owner.trade_codes) or "ikke oppgitt"
+            print(f"  Mottakers fagtilhørighet: {trades}")
+            print(f"  Mottakers kapasitet: {decision.owner.capacity.value} (demodata; ikke brukt i fordelingen)")
         if decision.flags:
             print(f"  Flagg: {', '.join(decision.flags)}")
         print()

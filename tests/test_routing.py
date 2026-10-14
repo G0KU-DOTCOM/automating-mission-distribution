@@ -7,7 +7,7 @@ import subprocess
 import sys
 import unittest
 
-from mission_distribution.models import load_direct_rules, load_indirect_rules, load_opportunities
+from mission_distribution.models import Capacity, load_direct_rules, load_indirect_rules, load_opportunities
 from mission_distribution.routing import route_direct, route_indirect
 
 
@@ -32,6 +32,8 @@ class RoutingTests(unittest.TestCase):
             "DEMO-006": (None, "EIER_INAKTIV", None, "EIER_INAKTIV"),
             "DEMO-007": ("D-03", "FAG_OMRÅDE", "P-01", "FAG_OMRÅDE"),
             "DEMO-008": (None, "EIER_INAKTIV", "P-01", "FAG_OMRÅDE"),
+            "DEMO-009": (None, "INGEN_REGEL", None, "INGEN_REGEL"),
+            "DEMO-010": ("D-07", "KUNDEEIER", "P-01", "FAG_OMRÅDE"),
         }
         for oid, values in expected.items():
             with self.subTest(opportunity=oid):
@@ -121,6 +123,62 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         for private in ("Demo Liv", "P-01", "Partnerkanalen"):
             self.assertNotIn(private, result.stdout)
+
+    def test_matching_person_trade_does_not_replace_missing_coverage(self):
+        self.assertIn("SE", self.direct.people["D-02"].trade_codes)
+        decision = route_direct(self.opportunities["DEMO-009"], self.direct)
+        self.assertIsNone(decision.owner)
+        self.assertEqual(decision.reason_code, "INGEN_REGEL")
+
+    def test_prior_contact_does_not_override_registered_customer_owner(self):
+        customer = self.direct.customers["000000104"]
+        self.assertEqual(customer.prior_contact_ids, ("D-08",))
+        decision = route_direct(self.opportunities["DEMO-010"], self.direct)
+        self.assertEqual(decision.owner.id, "D-07")
+
+    def test_prior_contact_without_owner_does_not_bypass_coverage(self):
+        customers = dict(self.direct.customers)
+        customers["000000104"] = replace(customers["000000104"], owner_id=None, deputy_id=None)
+        decision = route_direct(self.opportunities["DEMO-010"], replace(self.direct, customers=customers))
+        self.assertEqual((decision.owner.id, decision.reason_code), ("D-03", "FAG_OMRÅDE"))
+
+    def test_busy_owner_is_explicitly_a_proposal_without_capacity_routing(self):
+        decision = route_direct(self.opportunities["DEMO-010"], self.direct)
+        payload = decision.to_dict()
+        self.assertTrue(payload["owner"]["active"])
+        self.assertEqual(payload["owner"]["capacity"], "opptatt")
+        self.assertFalse(payload["capacity_used_for_routing"])
+        self.assertEqual(payload["status"], "foreslått")
+        self.assertEqual(payload["delivery_status"], "ikke_levert")
+
+    def test_customer_ownership_can_differ_from_person_trade_profile(self):
+        decision = route_direct(self.opportunities["DEMO-010"], self.direct)
+        self.assertEqual(decision.trade, "BA")
+        self.assertEqual(decision.owner.trade_codes, ("FS",))
+        self.assertEqual(decision.reason_code, "KUNDEEIER")
+
+    def test_changing_capacity_does_not_silently_change_ownership_rule(self):
+        people = dict(self.direct.people)
+        people["D-07"] = replace(people["D-07"], capacity=Capacity.AVAILABLE)
+        decision = route_direct(self.opportunities["DEMO-010"], replace(self.direct, people=people))
+        self.assertEqual((decision.owner.id, decision.reason_code), ("D-07", "KUNDEEIER"))
+
+    def test_partner_output_excludes_customer_contact_and_owner_metadata(self):
+        payload = route_indirect(self.opportunities["DEMO-010"], self.indirect).to_dict()
+        serialized = json.dumps(payload)
+        for private in ("D-07", "D-08", "Demo Vera", "Demo Jonas", "prior_contact_ids", "KUNDEEIER",
+                        "tidligere kontakt", "opptatt"):
+            self.assertNotIn(private, serialized)
+
+    def test_cli_explains_capacity_limit_for_busy_customer_owner(self):
+        result = subprocess.run([sys.executable, "-m", "mission_distribution", "--channel", "direkte",
+                                 "--scenario", "DEMO-010"], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Demo Vera (D-07)", result.stdout)
+        self.assertIn("Mottakers fagtilhørighet: FS", result.stdout)
+        self.assertIn("Mottakers kapasitet: opptatt", result.stdout)
+        self.assertIn("ikke brukt i fordelingen", result.stdout)
+        self.assertNotIn("Demo Jonas", result.stdout)
 
 
 if __name__ == "__main__":

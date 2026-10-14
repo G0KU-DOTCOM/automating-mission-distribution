@@ -29,13 +29,20 @@ class Decision:
             "title": self.title,
             "channel": self.channel.value,
             "status": "foreslått" if self.owner else "uavklart",
-            "owner": {"id": self.owner.id, "name": self.owner.name} if self.owner else None,
+            "owner": {
+                "id": self.owner.id,
+                "name": self.owner.name,
+                "trade_codes": list(self.owner.trade_codes),
+                "active": self.owner.active,
+                "capacity": self.owner.capacity.value,
+            } if self.owner else None,
             "reason_code": self.reason_code,
             "explanation": self.explanation,
             "main_trade": self.trade,
             "area": self.area,
             "flags": list(self.flags),
             "delivery_status": "ikke_levert",
+            "capacity_used_for_routing": False,
         }
 
 
@@ -84,7 +91,7 @@ def route_direct(opportunity: PreparedOpportunity, rules: DirectRules) -> Decisi
             owner = rules.people[customer.owner_id]
             if owner.active:
                 return _decision(opportunity, channel, owner, "KUNDEEIER",
-                                 "Innkjøpers organisasjonsnummer har en aktiv kundeeier. Kundeeierskap prioriteres foran fag og område.", flags)
+                                 "Innkjøpers organisasjonsnummer har en registrert, aktiv kundeeier. Kundeeierskap prioriteres foran fag og område; tidligere kontakt alene endrer ikke eier.", flags)
             if customer.deputy_id:
                 deputy = rules.people[customer.deputy_id]
                 if deputy.active:
