@@ -49,6 +49,18 @@
       "buyer_name": "Demo Fossrum kommune", "buyer_org_number": "000000103",
       "main_trade": "BA", "other_trades": [], "area": "Vest",
       "deadline": "2026-12-08", "public_flags": []
+    },
+    {
+      "id": "DEMO-009", "title": "Demo: vedlikehold av adgangsanlegg i Lien",
+      "buyer_name": "Demo Lien verksted", "buyer_org_number": "000000909",
+      "main_trade": "SE", "other_trades": [], "area": "Vest",
+      "deadline": "2026-12-09", "public_flags": []
+    },
+    {
+      "id": "DEMO-010", "title": "Demo: service på styringsanlegg i Engdal",
+      "buyer_name": "Demo Engdal kommune", "buyer_org_number": "000000104",
+      "main_trade": "BA", "other_trades": [], "area": "Vest",
+      "deadline": "2026-12-10", "public_flags": []
     }
   ]
 }

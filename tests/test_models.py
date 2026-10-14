@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from mission_distribution.models import DemoDataError, load_direct_rules, load_indirect_rules, load_opportunities
+from mission_distribution.models import Capacity, DemoDataError, load_direct_rules, load_indirect_rules, load_opportunities
 
 
 DATA = Path(__file__).resolve().parents[1] / "demo_data"
@@ -23,8 +23,8 @@ class DemoInputTests(unittest.TestCase):
                 loader(path)
 
     def test_demo_records_and_responsibilities_load(self):
-        self.assertEqual(len(load_opportunities(DATA / "opportunities.json")), 8)
-        self.assertEqual(len(load_direct_rules(DATA / "direct_rules.json").customers), 3)
+        self.assertEqual(len(load_opportunities(DATA / "opportunities.json")), 10)
+        self.assertEqual(len(load_direct_rules(DATA / "direct_rules.json").customers), 4)
         self.assertEqual(len(load_indirect_rules(DATA / "indirect_rules.json").coverage), 3)
 
     def test_two_rules_for_one_trade_area_are_rejected(self):
@@ -71,6 +71,35 @@ class DemoInputTests(unittest.TestCase):
         def mutate(data):
             data["customers"].append(copy.deepcopy(data["customers"][0]))
         self.check_rejected("direct_rules.json", mutate, load_direct_rules)
+
+    def test_invalid_person_trade_is_rejected(self):
+        self.check_rejected("direct_rules.json",
+                            lambda data: data["people"][0].update(trade_codes=["UNKNOWN"]), load_direct_rules)
+
+    def test_duplicate_person_trade_is_rejected(self):
+        self.check_rejected("direct_rules.json",
+                            lambda data: data["people"][0].update(trade_codes=["BA", "BA"]), load_direct_rules)
+
+    def test_invalid_capacity_is_rejected(self):
+        self.check_rejected("direct_rules.json",
+                            lambda data: data["people"][0].update(capacity=True), load_direct_rules)
+
+    def test_prior_contact_must_be_a_known_direct_person(self):
+        self.check_rejected("direct_rules.json",
+                            lambda data: data["customers"][0].update(prior_contact_ids=["P-01"]), load_direct_rules)
+
+    def test_duplicate_prior_contacts_are_rejected(self):
+        self.check_rejected("direct_rules.json",
+                            lambda data: data["customers"][0].update(prior_contact_ids=["D-01", "D-01"]), load_direct_rules)
+
+    def test_missing_capacity_means_unknown_not_available(self):
+        payload = json.loads((DATA / "direct_rules.json").read_text(encoding="utf-8"))
+        payload["people"][0].pop("capacity")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "direct_rules.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            rules = load_direct_rules(path)
+        self.assertEqual(rules.people["D-01"].capacity, Capacity.UNKNOWN)
 
 
 if __name__ == "__main__":

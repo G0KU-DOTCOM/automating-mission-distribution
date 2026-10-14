@@ -3,17 +3,20 @@
   "description": "Oppdiktet ansvarsliste for direkte salg. Ingen virkelige personer eller kunder.",
   "name_similarity_threshold": 0.9,
   "people": [
-    {"id": "D-01", "name": "Demo Anna", "channel": "direkte", "active": true},
-    {"id": "D-02", "name": "Demo Erik", "channel": "direkte", "active": true},
-    {"id": "D-03", "name": "Demo Nora", "channel": "direkte", "active": true},
-    {"id": "D-04", "name": "Demo Martin", "channel": "direkte", "active": false},
-    {"id": "D-05", "name": "Demo Sara", "channel": "direkte", "active": true},
-    {"id": "D-06", "name": "Demo Emil", "channel": "direkte", "active": false}
+    {"id": "D-01", "name": "Demo Anna", "channel": "direkte", "active": true, "trade_codes": ["BA"], "capacity": "ukjent"},
+    {"id": "D-02", "name": "Demo Erik", "channel": "direkte", "active": true, "trade_codes": ["BA", "FS", "SE"], "capacity": "ukjent"},
+    {"id": "D-03", "name": "Demo Nora", "channel": "direkte", "active": true, "trade_codes": ["BA"], "capacity": "ukjent"},
+    {"id": "D-04", "name": "Demo Martin", "channel": "direkte", "active": false, "trade_codes": ["BA", "FS"], "capacity": "ukjent"},
+    {"id": "D-05", "name": "Demo Sara", "channel": "direkte", "active": true, "trade_codes": ["FS"], "capacity": "ukjent"},
+    {"id": "D-06", "name": "Demo Emil", "channel": "direkte", "active": false, "trade_codes": ["BA"], "capacity": "ukjent"},
+    {"id": "D-07", "name": "Demo Vera", "channel": "direkte", "active": true, "trade_codes": ["FS"], "capacity": "opptatt"},
+    {"id": "D-08", "name": "Demo Jonas", "channel": "direkte", "active": true, "trade_codes": ["BA"], "capacity": "ledig"}
   ],
   "customers": [
-    {"org_number": "000000101", "name": "Demo Aurora kommune", "owner_id": "D-01", "deputy_id": "D-02", "installed_base": true},
-    {"org_number": "000000102", "name": "Demo Skogheim kommune", "owner_id": "D-04", "deputy_id": null, "installed_base": false},
-    {"org_number": "000000103", "name": "Demo Fossrum kommune", "owner_id": "D-04", "deputy_id": "D-06", "installed_base": false}
+    {"org_number": "000000101", "name": "Demo Aurora kommune", "owner_id": "D-01", "deputy_id": "D-02", "installed_base": true, "prior_contact_ids": []},
+    {"org_number": "000000102", "name": "Demo Skogheim kommune", "owner_id": "D-04", "deputy_id": null, "installed_base": false, "prior_contact_ids": []},
+    {"org_number": "000000103", "name": "Demo Fossrum kommune", "owner_id": "D-04", "deputy_id": "D-06", "installed_base": false, "prior_contact_ids": []},
+    {"org_number": "000000104", "name": "Demo Engdal kommune", "owner_id": "D-07", "deputy_id": "D-02", "installed_base": false, "prior_contact_ids": ["D-08"]}
   ],
   "coverage": [
     {"trade": "BA", "area": "Vest", "owner_id": "D-03", "deputy_id": "D-02"},

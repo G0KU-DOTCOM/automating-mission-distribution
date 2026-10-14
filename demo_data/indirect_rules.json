@@ -2,11 +2,11 @@
   "synthetic": true,
   "description": "Oppdiktet ansvarsliste for partnerkanalen. Inneholder ikke kundeeierskap.",
   "people": [
-    {"id": "P-01", "name": "Demo Liv", "channel": "indirekte", "active": true},
-    {"id": "P-02", "name": "Demo Omar", "channel": "indirekte", "active": true},
-    {"id": "P-03", "name": "Demo Ada", "channel": "indirekte", "active": true},
-    {"id": "P-04", "name": "Demo Theo", "channel": "indirekte", "active": false},
-    {"id": "P-05", "name": "Demo Lea", "channel": "indirekte", "active": false}
+    {"id": "P-01", "name": "Demo Liv", "channel": "indirekte", "active": true, "trade_codes": ["BA"], "capacity": "ukjent"},
+    {"id": "P-02", "name": "Demo Omar", "channel": "indirekte", "active": true, "trade_codes": ["BA", "FS", "SE"], "capacity": "ukjent"},
+    {"id": "P-03", "name": "Demo Ada", "channel": "indirekte", "active": true, "trade_codes": ["FS"], "capacity": "ukjent"},
+    {"id": "P-04", "name": "Demo Theo", "channel": "indirekte", "active": false, "trade_codes": ["BA"], "capacity": "ukjent"},
+    {"id": "P-05", "name": "Demo Lea", "channel": "indirekte", "active": false, "trade_codes": ["BA"], "capacity": "ukjent"}
   ],
   "coverage": [
     {"trade": "BA", "area": "Vest", "owner_id": "P-01", "deputy_id": "P-02"},

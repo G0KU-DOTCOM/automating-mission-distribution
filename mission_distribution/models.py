@@ -17,6 +17,12 @@ class Channel(StrEnum):
     INDIRECT = "indirekte"
 
 
+class Capacity(StrEnum):
+    UNKNOWN = "ukjent"
+    AVAILABLE = "ledig"
+    BUSY = "opptatt"
+
+
 TRADES = frozenset({"BA", "FS", "SE"})
 PUBLIC_FLAGS = frozenset({"MERKENAVN", "TIDLIG_FASE", "KORT_FRIST", "FLERE_OMRÅDER", "MULIG_DUPLIKAT"})
 
@@ -82,6 +88,8 @@ class Person:
     name: str
     channel: Channel
     active: bool
+    trade_codes: tuple[str, ...] = ()
+    capacity: Capacity = Capacity.UNKNOWN
 
 
 @dataclass(frozen=True)
@@ -99,6 +107,7 @@ class Customer:
     owner_id: str | None
     deputy_id: str | None
     installed_base: bool
+    prior_contact_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -137,8 +146,15 @@ def _people(data: dict, channel: Channel) -> dict[str, Person]:
             raise DemoDataError(f"Person-ID {pid} finnes flere ganger.")
         if row.get("channel") != channel.value:
             raise DemoDataError(f"Person {pid} tilhører ikke {channel.value} kanal.")
+        trade_codes = tuple(_trade(code) for code in _items(row.get("trade_codes", []), "person.trade_codes"))
+        if len(set(trade_codes)) != len(trade_codes):
+            raise DemoDataError(f"Person {pid} har dupliserte fagkoder.")
+        try:
+            capacity = Capacity(row.get("capacity", "ukjent"))
+        except (ValueError, TypeError) as exc:
+            raise DemoDataError(f"Person {pid}: capacity må være ukjent, ledig eller opptatt.") from exc
         people[pid] = Person(pid, _text(row.get("name"), "person.name"), channel,
-                             _boolean(row.get("active"), "person.active"))
+                             _boolean(row.get("active"), "person.active"), trade_codes, capacity)
     return people
 
 
@@ -172,11 +188,18 @@ def load_direct_rules(path: Path) -> DirectRules:
     customers = {}
     for raw in _items(data.get("customers"), "customers"):
         row = _object(raw, "customer")
+        contacts = tuple(_text(pid, "prior_contact_ids")
+                         for pid in _items(row.get("prior_contact_ids", []), "prior_contact_ids"))
+        if len(set(contacts)) != len(contacts):
+            raise DemoDataError("Kundens tidligere kontaktpersoner inneholder duplikater.")
+        for pid in contacts:
+            if pid not in people:
+                raise DemoDataError(f"Kontaktperson {pid} finnes ikke i direktekanalens personliste.")
         customer = Customer(_org_number(row.get("org_number")),
                             _text(row.get("name"), "customer.name"),
                             _text(row.get("owner_id"), "owner_id", True),
                             _text(row.get("deputy_id"), "deputy_id", True),
-                            _boolean(row.get("installed_base"), "installed_base"))
+                            _boolean(row.get("installed_base"), "installed_base"), contacts)
         if customer.org_number in customers:
             raise DemoDataError(f"Kunden {customer.org_number} finnes flere ganger.")
         _check_people(customer.owner_id, customer.deputy_id, people)
