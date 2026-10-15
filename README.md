@@ -6,60 +6,51 @@ Dette prosjektet viser hvordan en kunngjøring kan bli til en oppgave hos riktig
 
 ## Slik prøver du demoen første gang
 
-**Dette er et program du kjører på din egen PC. Nettleserlenken virker først etter at programmet er startet.**
+**Dette er et program på din egen PC. Nettleserlenken virker først når programmet kjører.**
 
-1. **Installer Python 3.11 eller nyere** hvis du ikke har det. Bruk [python.org](https://www.python.org/downloads/). Ingen API-nøkler eller ekstra Python-pakker trengs.
-2. **[Last ned prosjektet som ZIP](https://github.com/G0KU-DOTCOM/automating-mission-distribution/archive/refs/heads/main.zip)** og pakk det ut. Åpne mappen som inneholder `README.md`, `demo_data` og `mission_distribution`. Ikke kjør fra selve ZIP-filen.
-3. **Åpne en terminal i denne mappen**, og følg oppskriften for din PC nedenfor. Kjør én linje om gangen. Versjonskommandoen må vise Python 3.11 eller nyere.
+1. **Installer Python 3.11 eller nyere** fra [python.org](https://www.python.org/downloads/) hvis det mangler.
+2. **[Last ned prosjektet som ZIP](https://github.com/G0KU-DOTCOM/automating-mission-distribution/archive/refs/heads/main.zip)** og pakk det ut.
+3. **På Windows: dobbeltklikk `Start-demo.cmd`** i den utpakkede mappen. Den lager prosjektets miljø ved behov, leser inn oppdiktede oppdrag og starter demoen.
+4. **Nettleseren åpnes når serveren er klar.** Hvis den ikke åpnes, bruk adressen som står i vinduet, normalt [http://127.0.0.1:8765](http://127.0.0.1:8765/). La oppstartsvinduet stå åpent. Stopp med **Ctrl+C** i dette vinduet.
+
+Du skal se seks oppgaver i hver kanal og to bortsorterte konkurranser på en ny database. Åpne et oppdrag for å se begrunnelsen, velge mottaker og godkjenne lokalt. Ingenting sendes til andre.
+
+**Du trenger ikke `requirements.txt`, API-nøkler eller `pip install`.** Programmet bruker bare det som følger med Python. Startfilen bruker miljøets Python direkte; du trenger ikke aktivere det selv.
 
 <details>
-<summary><strong>Mac / Linux – vis kommandoene</strong></summary>
+<summary><strong>Mac / Linux</strong></summary>
 
-På Mac: Åpne Terminal, skriv `cd ` med et mellomrom etterpå, dra den utpakkede prosjektmappen inn i terminalvinduet og trykk Enter. På Linux bruker du `cd` til samme prosjektmappe.
+Åpne en terminal i den utpakkede prosjektmappen, og kjør:
 
 ```sh
-python3 --version
-python3 -m venv .venv
-.venv/bin/python -m mission_distribution ingest demo_data/source_batches/05-classification.json --db runtime/fagdemo.sqlite3
-.venv/bin/python -m mission_distribution serve --db runtime/fagdemo.sqlite3
+python3 start_demo.py
 ```
+
+Python må være 3.11 eller nyere. På Mac kan du skrive `cd ` med et mellomrom, dra prosjektmappen inn i terminalen og trykke Enter for å komme til riktig mappe. Startprogrammet ordner miljø, eksempeldata og nettleser.
 
 </details>
 
 <details>
-<summary><strong>Windows – vis kommandoene for PowerShell</strong></summary>
+<summary><strong>Windows: starte manuelt fra PowerShell</strong></summary>
 
-Åpne PowerShell og bruk `cd` til den utpakkede prosjektmappen. Sett anførselstegn rundt mappebanen hvis den inneholder mellomrom.
+Åpne PowerShell og bruk `cd` til mappen som inneholder `README.md` og `mission_distribution`. Sett anførselstegn rundt mappebanen hvis den inneholder mellomrom. Kjør én linje om gangen:
 
 ```powershell
 py -3 --version
-py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m mission_distribution ingest demo_data/source_batches/05-classification.json --db runtime/fagdemo.sqlite3
-.\.venv\Scripts\python.exe -m mission_distribution serve --db runtime/fagdemo.sqlite3
+py -3 -X utf8 -m venv .venv
+.\.venv\Scripts\python.exe -X utf8 -m mission_distribution ingest demo_data/source_batches/05-classification.json --db runtime/fagdemo.sqlite3
+.\.venv\Scripts\python.exe -X utf8 -m mission_distribution serve --db runtime/fagdemo.sqlite3
 ```
 
-Hvis `py` ikke finnes, prøv `python` i de to første linjene. Kontroller at versjonen er 3.11 eller nyere før du fortsetter.
+Versjonskommandoen må vise Python 3.11 eller nyere. Hvis `py` mangler, prøv `python` i de to første linjene. Åpne nettleseradressen når serveren har startet. Du trenger ikke kjøre et PowerShell-aktiveringsskript eller endre maskinens sikkerhetsinnstillinger.
 
 </details>
 
-Kommandoene lager prosjektets eget Python-miljø, leser inn de oppdiktede oppdragene og starter nettsiden lokalt. Du trenger ikke aktivere miljøet separat; kommandoene bruker riktig Python direkte.
-
-**Du trenger ikke `requirements.txt` eller `pip install` i denne versjonen.** Programmet bruker bare det som følger med Python. Vi legger til en avhengighetsfil når prosjektet faktisk trenger eksterne pakker.
-
-4. **Vent til terminalen viser `Oppdragsoversikt: http://127.0.0.1:8765`.** Åpne deretter [demoen i nettleseren](http://127.0.0.1:8765/). La terminalen stå åpen mens du bruker den. Stopp med **Ctrl+C**.
-
-Du skal nå se seks oppgaver i hver kanal og to bortsorterte konkurranser. Velg kanal og åpne et oppdrag for å se begrunnelsen, velge mottaker og godkjenne lokalt. Ingenting sendes til andre.
-
 ## Neste gang
 
-Åpne terminalen i **samme prosjektmappe** og kjør bare startkommandoen:
+Dobbeltklikk **`Start-demo.cmd`** igjen på Windows. På Mac/Linux bruker du **`python3 start_demo.py`** igjen fra prosjektmappen. Tidligere mottakerbytter og godkjenninger beholdes; eksempelfilen lager ikke duplikater ved ny oppstart.
 
-- Mac / Linux: `.venv/bin/python -m mission_distribution serve`
-- Windows PowerShell: `.\.venv\Scripts\python.exe -m mission_distribution serve`
-
-Åpne nettleserlenken når adressen vises i terminalen. Tidligere mottakerbytter og godkjenninger ligger fortsatt lokalt. Du skal ikke lage miljøet eller lese inn eksempeldata på nytt ved hver oppstart.
-
-Hvis en eldre demo kjører mens du oppdaterer koden, stopp den med Ctrl+C og start igjen. [Se feilsøking og en kort testgjennomgang](docs/nettleserdemo.md).
+Startfilen må kjøres fra den utpakkede mappen, ikke inne i ZIP-filen. Hvis en eldre demo kjører mens du oppdaterer koden, stopp den med Ctrl+C og start igjen. [Se feilsøking og en kort testgjennomgang](docs/nettleserdemo.md).
 
 ## Hva fungerer nå?
 

@@ -6,6 +6,10 @@ README forklarer hvordan du prøver demoen. Denne oversikten viser hvor hver del
 | --- | --- |
 | `README.md` | Forklarer prosjektet og hva som er ferdig. |
 | `.gitignore` | Forteller Git hvilke lokale filer som skal holdes utenfor repoet, blant annet vanlige nøkkelfiler og databaser. |
+| `Start-demo.cmd` | Windows-startfilen som kan dobbeltklikkes etter utpakking. |
+| `start_demo.py` | Klargjør miljø og eksempeldata, starter serveren og åpner nettleseren når siden er klar. |
+| `.gitattributes` | Angir linjeskift for blant annet Windows-startfilen. |
+| `.github/workflows/tests.yml` | Kjører automatiske tester på Windows, Mac og Linux. |
 | `demo_data/opportunities.json` | De ti oppdiktede, klargjorte oppdragene. |
 | `demo_data/direct_rules.json` | Oppdiktede selgere, kunder og ansvarsområder i direkte salg. |
 | `demo_data/indirect_rules.json` | Partnerkanalens egen oppdiktede ansvarsliste. |
@@ -27,6 +31,7 @@ README forklarer hvordan du prøver demoen. Denne oversikten viser hvor hver del
 | `mission_distribution/web_assets/` | Utseende og ikon for nettleserdemoen, uten eksterne ressurser. |
 | `tests/test_dashboard.py` | Kontrollerer kanalvisning, søk, historikk og at nettsiden ikke endrer oppgaver. |
 | `tests/test_approval.py` | Kontrollerer godkjenning, mottakerbytte, utdaterte sider og nye kildeopplysninger. |
+| `tests/test_start_demo.py` | Prøver oppstart fra en ny mappe og at tidligere mottakerbytte og godkjenning beholdes. |
 | `mission_distribution/__main__.py` | Lar deg kjøre demoen fra terminalen. |
 | `tests/` | Kontrollerer at regler og eksempelsaker gir riktig resultat. |
 | [Demovalg](demovalg.md) | Forklarer forenklinger og valg vi har gjort selv. |

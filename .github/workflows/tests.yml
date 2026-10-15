@@ -1,0 +1,57 @@
+name: Test prototype
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mission_distribution/**'
+      - 'tests/**'
+      - 'start_demo.py'
+      - 'Start-demo.cmd'
+      - '.gitattributes'
+      - '.github/workflows/tests.yml'
+  pull_request:
+    paths:
+      - 'mission_distribution/**'
+      - 'tests/**'
+      - 'start_demo.py'
+      - 'Start-demo.cmd'
+      - '.gitattributes'
+      - '.github/workflows/tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        python: ['3.11', '3.13']
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run all tests
+        run: python -m unittest discover -s tests -v
+      - name: Try Windows launcher from a folder with spaces
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $demoFolder = Join-Path $env:RUNNER_TEMP "Prototype med mellomrom Øst"
+          New-Item -ItemType Directory -Path $demoFolder -Force | Out-Null
+          Copy-Item -Path Start-demo.cmd,start_demo.py,mission_distribution,demo_data -Destination $demoFolder -Recurse
+          Set-Location $env:RUNNER_TEMP
+          & "$demoFolder\Start-demo.cmd" --prepare-only
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
