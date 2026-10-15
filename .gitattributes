@@ -1,0 +1,5 @@
+# Use native line endings for the Windows entry point in Git checkouts.
+*.cmd text eol=crlf
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
