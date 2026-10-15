@@ -107,9 +107,12 @@ class StartupIntegrationTests(unittest.TestCase):
             probe.bind(("127.0.0.1", 0))
             port = probe.getsockname()[1]
             probe.close()
+            # A pipe can fill before readiness on systems with small pipe buffers.
+            # Save diagnostics without making the server wait for the test to read them.
+            output = tempfile.TemporaryFile()
             server = subprocess.Popen([sys.executable, "-X", "utf8", str(root / "start_demo.py"),
                                        "--no-browser", "--port", str(port)], cwd=directory, env=environment,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
+                                      stdout=output, stderr=subprocess.STDOUT)
             try:
                 deadline = time.monotonic() + 30
                 page = ""
@@ -125,7 +128,9 @@ class StartupIntegrationTests(unittest.TestCase):
                         time.sleep(.1)
                     finally:
                         connection.close()
-                self.assertIn("Oppdragsoversikt", page)
+                output.seek(0)
+                diagnostics = output.read().decode("utf-8", errors="replace")
+                self.assertIn("Oppdragsoversikt", page, diagnostics)
                 self.assertIn("Godkjent lokalt", page)
                 self.assertEqual(page.count('class="task-link"'), 6)
             finally:
@@ -137,6 +142,7 @@ class StartupIntegrationTests(unittest.TestCase):
                     import signal
                     server.send_signal(signal.SIGINT)
                 server.communicate(timeout=15)
+                output.close()
 
 
 if __name__ == "__main__":
