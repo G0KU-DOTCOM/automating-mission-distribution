@@ -4,6 +4,7 @@ import argparse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import secrets
+from socketserver import TCPServer
 import sqlite3
 from urllib.parse import parse_qs, urlsplit
 
@@ -16,6 +17,14 @@ from .storage import DemoStore
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = Path(__file__).resolve().parent / "web_assets"
 CSP = "default-src 'none'; style-src 'self'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
+
+
+class LocalDemoServer(ThreadingHTTPServer):
+    def server_bind(self) -> None:
+        # HTTPServer normally resolves a hostname here. Our numeric loopback address
+        # needs no DNS, which can delay startup on machines with slow name lookup.
+        TCPServer.server_bind(self)
+        self.server_name, self.server_port = self.server_address[:2]
 
 
 def create_server(database: Path, port: int = 8765, rules_directory: Path = ROOT / "demo_data") -> ThreadingHTTPServer:
@@ -153,7 +162,7 @@ def create_server(database: Path, port: int = 8765, rules_directory: Path = ROOT
             # Avoid printing search strings or task identifiers to browser-preview logs.
             pass
 
-    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    return LocalDemoServer(("127.0.0.1", port), Handler)
 
 
 def main(argv: list[str]) -> None:

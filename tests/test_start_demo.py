@@ -14,12 +14,23 @@ import unittest
 from unittest.mock import patch
 
 import start_demo
+from mission_distribution.web_server import create_server
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class StartupTests(unittest.TestCase):
+    def test_local_server_needs_no_hostname_lookup(self):
+        with tempfile.TemporaryDirectory() as directory, patch("socket.getfqdn", side_effect=AssertionError("Unexpected DNS lookup")):
+            server = create_server(Path(directory) / "demo.sqlite3", 0)
+            try:
+                self.assertEqual(server.server_name, "127.0.0.1")
+                self.assertGreater(server.server_port, 0)
+                self.assertEqual(server.server_address, ("127.0.0.1", server.server_port))
+            finally:
+                server.server_close()
+
     def test_windows_and_posix_interpreter_paths(self):
         root = Path("project")
         self.assertEqual(start_demo.environment_python(root, windows=True), root / ".venv" / "Scripts" / "python.exe")

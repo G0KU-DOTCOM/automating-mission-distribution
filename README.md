@@ -77,4 +77,4 @@ Mottakerbytte og godkjenning virker lokalt, uten pålogging. Kapasitet og tidlig
 - [Valgene i demoen](docs/demovalg.md)
 - [Planen videre](docs/utviklingsplan.md)
 
-Kjør testene med `python3 -m unittest discover -s tests`.
+Vil du kjøre testene selv? Bruk `py -3 -X utf8 -m unittest discover -s tests` på Windows eller `python3 -m unittest discover -s tests` på Mac/Linux fra prosjektmappen.
