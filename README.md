@@ -66,7 +66,7 @@ Programmet forklarer hvilke regler som traff. Ukjent fag går videre til fordeli
 
 Det finnes en egen terminalkommando som lar **Phi-4-mini** vurdere åtte oppdiktede tekster ved siden av dagens regler. Den krever gratisappen Ollama og en lokal modellnedlasting, men ingen API-nøkkel eller nye Python-pakker. Den endrer ingen mottakere og er ikke koblet til nettleservisningen. [Se den korte veiledningen](docs/lokal-ai.md).
 
-Forbindelsen og svarformatet er testet med simulerte svar. Vi har ennå ikke målt om selve modellen gir riktige fagvurderinger.
+Første faktiske modellforsøk fikk svar på alle åtte saker, men alle ble avvist fordi sitatene ikke oppfylte kravene. Modellen blandet blant annet fagdefinisjonene med oppdragsteksten. Den er foreløpig ikke egnet til å påvirke fordelingen. [Se resultatet og begrensningene](docs/phi-forste-forsok.md).
 
 ## Hva gjenstår?
 

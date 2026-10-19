@@ -42,3 +42,4 @@ README forklarer hvordan du prøver demoen. Denne oversikten viser hvor hver del
 | [Utviklingsplan](utviklingsplan.md) | Beskriver kravene vi bygger og kontrollerer steg for steg. |
 | [Nettleserdemo](nettleserdemo.md) | Forklarer hvordan du åpner og prøver oppdragsoversikten. |
 | [Lokal AI](lokal-ai.md) | Viser hvordan du installerer Ollama og prøver Phi uten betalte API-er. |
+| [Første Phi-forsøk](phi-forste-forsok.md) | Dokumenterer første faktiske kjøring og hvorfor de åtte svarene ble avvist. |

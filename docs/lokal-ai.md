@@ -2,7 +2,7 @@
 
 Dette er et eget forsøk ved siden av nettleserdemoen. Phi vurderer bare medfølgende, oppdiktede tekster. Den velger ingen ansatte og endrer ingen oppgaver eller godkjenninger. Du trenger ikke en API-nøkkel eller nye Python-pakker.
 
-**Status:** Koden og feilhåndteringen er testet med tydelig simulerte modellsvar. Det er ikke dokumentasjon på at Phi gir riktige fagvurderinger. Vi har ennå ikke et målt resultat fra selve modellen på disse sakene.
+**Status:** Koden og feilhåndteringen testes med tydelig simulerte modellsvar. I tillegg er modellen kjørt lokalt på alle åtte saker: alle svarte, men ingen svar oppfylte sitatkravene. Dette er ikke grunnlag for automatisk bruk. [Se det faktiske forsøket](phi-forste-forsok.md).
 
 ## 1. Installer Ollama
 
@@ -77,6 +77,14 @@ Første kjøring kan ta tid mens modellen lastes inn i minnet. Hvert modellkall 
 Du ser dagens regelresultat og modellens vurdering av hvert fag: «inngår», «inngår_ikke» eller «uklart». Modellen må oppgi et ordrett tekstgrunnlag for svar som ikke er «uklart». Programmet avviser et oppdiktet sitat. At sitatet finnes, beviser likevel ikke at tolkningen er riktig.
 
 Legg til `--case PHI-002` for negasjonseksemplet eller `--all` for alle åtte saker. `--json` viser et maskinlesbart resultat som du selv kan lagre. Fremdriftsmeldinger vises separat. Ingen rapportfil eller database skrives automatisk.
+
+Ved avviste svar kan du legge til `--diagnostics`. Da vises den faktiske modellteksten som ble avvist, separat fra gyldige vurderinger. Den får ingen samsvarsscore. Uten dette valget vises bare feilen, slik at normalutskriften er kort.
+
+```sh
+.venv/bin/python -m mission_distribution ai-review --case PHI-001 --diagnostics
+```
+
+Oppsummeringen skiller mellom antall forsøk, svar som oppfyller format- og sitatkrav, og avviste svar. Det er ikke det samme som antall faglig riktige svar.
 
 For eksempel, på Mac:
 

@@ -56,7 +56,7 @@ Brukerpålogging, faktisk tilgangsstyring for flere brukere, API-innhenting, AI 
 - Den bruker bare lokal Ollama og fast modellnavn, uten betalte API-er eller nye Python-pakker.
 - Modellen vurderer fag per tekst; kundeeierskap, hovedfagsprioritet og mottakerregler endres ikke.
 - Åtte forhåndsdefinerte demofasiter, synlige feil og kontroll av svarformat og ordrette sitater.
-- Forbindelse og validering er testet med simulerte svar. Selve modellkvaliteten er ennå ikke målt. Den er ikke koblet til nettleservisningen. [Se veiledningen](lokal-ai.md).
+- Forbindelse og validering testes med simulerte svar. Første faktiske modellforsøk fikk åtte svar, men ingen oppfylte sitatkravene. Avviste svar kan nå undersøkes med `--diagnostics`. Modellen er ikke koblet til nettleservisningen og har ikke vist tilstrekkelig kvalitet. [Se forsøket](phi-forste-forsok.md) og [veiledningen](lokal-ai.md).
 
 ## Avgrensning
 
