@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "description": "Bare oppdiktede tekster. Fagdefinisjoner og forventede svar er våre demovalg, ikke bekreftede arbeidsgiverregler. Forventede svar ble skrevet før modellkjøringen.",
+  "trade_definitions": {
+    "BA": "I denne demoen: arbeid på SD-anlegg og sentral styring/overvåking av byggets tekniske anlegg.",
+    "FS": "I denne demoen: leveranse, installasjon eller vedlikehold av brannalarm og brannalarmanlegg.",
+    "SE": "I denne demoen: leveranse, installasjon eller vedlikehold av adgangskontroll og adgangskontrollanlegg."
+  },
+  "cases": [
+    {
+      "id": "PHI-001", "title": "Demo: service på brannalarmanlegg",
+      "description": "Oppdiktet vedlikehold av brannalarmanlegg.", "main_cpv": null,
+      "expected": {"BA": "inngår_ikke", "FS": "inngår", "SE": "inngår_ikke"}
+    },
+    {
+      "id": "PHI-002", "title": "Demo: kontorrekvisita",
+      "description": "Oppdiktet innkjøp av papir og penner. Brannalarm inngår ikke i anskaffelsen.", "main_cpv": "30192000",
+      "expected": {"BA": "inngår_ikke", "FS": "inngår_ikke", "SE": "inngår_ikke"}
+    },
+    {
+      "id": "PHI-003", "title": "Demo: service på brannalarm",
+      "description": "Oppdiktet vedlikehold av brannalarm. SD-anlegg nevnes bare som bakgrunn og inngår ikke i oppdraget.", "main_cpv": null,
+      "expected": {"BA": "inngår_ikke", "FS": "inngår", "SE": "inngår_ikke"}
+    },
+    {
+      "id": "PHI-004", "title": "Demo: sikkerhetsanlegg",
+      "description": "Oppdiktet leveranse av brannalarm og adgangskontroll.", "main_cpv": null,
+      "expected": {"BA": "inngår_ikke", "FS": "inngår", "SE": "inngår"}
+    },
+    {
+      "id": "PHI-005", "title": "Demo: tekniske arbeider",
+      "description": "Oppdiktet generell beskrivelse uten nærmere angivelse av arbeidet.", "main_cpv": "45310000",
+      "expected": {"BA": "uklart", "FS": "uklart", "SE": "uklart"}
+    },
+    {
+      "id": "PHI-006", "title": "Demo: sentral styring",
+      "description": "Oppdiktet arbeid: varme og ventilasjon skal styres og overvåkes samlet fra byggets driftssentral.", "main_cpv": null,
+      "expected": {"BA": "inngår", "FS": "inngår_ikke", "SE": "inngår_ikke"}
+    },
+    {
+      "id": "PHI-007", "title": "Demo: alle tre fag",
+      "description": "Oppdiktet leveranse av SD-anlegg, brannalarm og adgangskontroll.", "main_cpv": null,
+      "expected": {"BA": "inngår", "FS": "inngår", "SE": "inngår"}
+    },
+    {
+      "id": "PHI-008", "title": "Demo: beskrivelse og kode peker ulikt",
+      "description": "Oppdiktet service på brannalarm. SD-anlegg inngår ikke.", "main_cpv": "50700000",
+      "expected": {"BA": "inngår_ikke", "FS": "inngår", "SE": "inngår_ikke"}
+    }
+  ]
+}

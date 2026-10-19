@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'mission_distribution/**'
+      - 'demo_data/**'
       - 'tests/**'
       - 'start_demo.py'
       - 'Start-demo.cmd'
@@ -13,6 +14,7 @@ on:
   pull_request:
     paths:
       - 'mission_distribution/**'
+      - 'demo_data/**'
       - 'tests/**'
       - 'start_demo.py'
       - 'Start-demo.cmd'
