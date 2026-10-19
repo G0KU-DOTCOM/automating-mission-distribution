@@ -109,6 +109,28 @@ class PhiValidationTests(unittest.TestCase):
             self.assertEqual(phi.main(["--check", "--json"]), 0)
         self.assertEqual(json.loads(output.getvalue())["results"], [])
 
+    def test_request_preview_is_exact_and_needs_no_running_ollama(self):
+        output = StringIO()
+        with (patch.object(phi, "local_request", side_effect=AssertionError("No HTTP in preview")) as request,
+              redirect_stdout(output)):
+            self.assertEqual(phi.main(["--show-request", "--json"]), 0)
+            request.assert_not_called()
+        preview = json.loads(output.getvalue())
+        self.assertFalse(preview["model_called"])
+        self.assertEqual(len(preview["requests"]), 1)
+        self.assertEqual(preview["requests"][0]["body"], phi.build_request(self.case, self.definitions))
+        self.assertEqual(preview["endpoint"], "http://127.0.0.1:11434/api/chat")
+
+    def test_request_preview_selects_a_case_without_sending_expected_answers(self):
+        output = StringIO()
+        with patch.object(phi, "local_request", side_effect=AssertionError("No HTTP")), redirect_stdout(output):
+            self.assertEqual(phi.main(["--case", "PHI-005", "--show-request", "--json"]), 0)
+        request = json.loads(output.getvalue())["requests"][0]
+        self.assertEqual(request["case_id"], "PHI-005")
+        self.assertNotIn("expected", json.dumps(request["body"]))
+        state = json.loads(request["body"]["messages"][1]["content"])
+        self.assertIn("generell beskrivelse", state["description"])
+
     def test_invalid_model_answer_is_visible_without_opening_a_database(self):
         output = StringIO()
         with (patch.object(phi, "check_model", return_value="demo-digest"),

@@ -94,6 +94,26 @@ For eksempel, på Mac:
 
 ## Hva sammenligner vi?
 
+### Se hva programmet gir modellen
+
+Du kan vise den nøyaktige forespørselen fra Python uten å kontakte Ollama:
+
+```sh
+.venv/bin/python -m mission_distribution ai-review --case PHI-001 --show-request
+```
+
+På Windows bruker du `.\.venv\Scripts\python.exe -X utf8` i stedet for `.venv/bin/python`. Legg til `--json` hvis du bare vil ha maskinlesbar utskrift.
+
+Visningen inneholder instruksjonene, tittel og beskrivelse, fagdefinisjonene, svarskjemaet og innstillingene. Forventede svar og ansattdata er ikke med. Den er samme forespørsel som vanlig kjøring bygger, men den sendes ikke. Ollama trenger derfor ikke kjøre.
+
+Bruk `--diagnostics` i en vanlig kjøring for å se avvist modelltekst. Dette er modellens svar, ikke en observasjon av dens interne beregninger. En ny forklaring modellen skriver på bestilling, er heller ikke bevis på hvordan den kom frem til det opprinnelige svaret.
+
+Ved kontroll av den installerte modellen 19. oktober 2026 oppga Ollama `completion` og `tools`, men ingen `thinking`-metadata. Det dokumenterer ingen egen innsynsvisning for denne modellen. [Ollama beskriver hvordan støtte for «thinking» kan kontrolleres](https://docs.ollama.com/capabilities/thinking). Modeller som tilbyr slik tekst, viser fortsatt ikke alle interne beregninger.
+
+Hva som påvirker svarene, kan undersøkes med nye fiktive tekstpar der én opplysning endres om gangen, for eksempel «inngår» mot «inngår ikke». Slike forsøk viser hvordan svaret reagerer på endringen. De beviser ikke hvilken intern mekanisme som ga svaret.
+
+### Eksempler og sammenligningsgrunnlag
+
 De åtte eksemplene omfatter sammensatte ord, uttrykkelig utelatte fag, bakgrunnsomtale, flere fag, generell tekst uten nok opplysninger, alternative faguttrykk og en beskrivelse som peker annerledes enn CPV-koden.
 
 Fagdefinisjonene og forventede svar ligger i `demo_data/phi_review_examples.json`. De er våre demonstrasjonsvalg, ikke bekreftede arbeidsgiverdata. Forventede svar ble skrevet før modellkjøringen og sendes ikke til modellen.

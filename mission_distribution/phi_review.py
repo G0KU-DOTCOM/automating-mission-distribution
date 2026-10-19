@@ -115,16 +115,20 @@ def validate_assessment(result, case):
     return result
 
 
-def review_case(case, definitions):
+def build_request(case, definitions):
     state = {"synthetic": True, "title": case.title, "description": case.description,
              "demo_trade_definitions": definitions}
-    request = {
+    return {
         "model": MODEL, "stream": False, "format": SCHEMA,
         "messages": [{"role": "system", "content": SYSTEM},
                      {"role": "user", "content": json.dumps(state, ensure_ascii=False)}],
         "options": {"temperature": 0, "seed": 42, "num_ctx": 4096, "num_predict": 768},
         "keep_alive": "5m",
     }
+
+
+def review_case(case, definitions):
+    request = build_request(case, definitions)
     started = time.monotonic()
     response = local_request("/api/chat", request)
     fingerprint = sha256(json.dumps(request, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
@@ -180,13 +184,27 @@ def main(argv=None):
     selection.add_argument("--check", action="store_true", help="Kontroller Ollama og nedlastet modell, uten modellkjøring.")
     parser.add_argument("--json", action="store_true", help="Vis resultatet som JSON.")
     parser.add_argument("--diagnostics", action="store_true", help="Vis den faktiske, avviste modellteksten for feilsøking.")
+    parser.add_argument("--show-request", action="store_true", help="Vis nøyaktig forespørsel fra programmet, uten å kontakte Ollama.")
     args = parser.parse_args(argv)
+    if args.check and args.show_request:
+        parser.error("Velg enten --check eller --show-request.")
     try:
         definitions, examples = load_examples()
         if not args.all:
             examples = [(case, expected) for case, expected in examples if case.id == (args.case or "PHI-001")]
             if not examples:
                 raise DemoDataError("Eksempelsaken finnes ikke. Bruk --all for å prøve alle sakene.")
+        if args.show_request:
+            preview = {"synthetic": True, "mode": "request_preview", "model_called": False,
+                       "endpoint": f"http://{HOST}:{PORT}/api/chat", "prompt_version": PROMPT_VERSION,
+                       "requests": [{"case_id": case.id, "body": build_request(case, definitions)}
+                                    for case, _ in examples]}
+            if not args.json:
+                print("DET PROGRAMMET VILLE SENDT TIL OLLAMA — ingen modellkjøring")
+                print("Viser instruksjoner, oppdragstekst, fagdefinisjoner, svarskjema og innstillinger.")
+                print("Dette er forespørselen fra Python, ikke modellens interne tanker eller Ollamas ferdige tokener.\n")
+            print(json.dumps(preview, ensure_ascii=False, indent=2))
+            return 0
         rules = load_classification_rules(ROOT / "demo_data" / "classification_rules.json")
         digest = check_model()
         report = {"synthetic": True, "local_model": MODEL, "model_digest": digest,
