@@ -62,11 +62,17 @@ Startfilen må kjøres fra den utpakkede mappen, ikke inne i ZIP-filen. Hvis en 
 
 Programmet forklarer hvilke regler som traff. Ukjent fag går videre til fordeling eller avklaring. Oppdrag uten relevante treff lagres med forklaring og får ingen nye oppgaver.
 
+## Valgfritt: prøv lokal AI
+
+Det finnes en egen terminalkommando som lar **Phi-4-mini** vurdere åtte oppdiktede tekster ved siden av dagens regler. Den krever gratisappen Ollama og en lokal modellnedlasting, men ingen API-nøkkel eller nye Python-pakker. Den endrer ingen mottakere og er ikke koblet til nettleservisningen. [Se den korte veiledningen](docs/lokal-ai.md).
+
+Forbindelsen og svarformatet er testet med simulerte svar. Vi har ennå ikke målt om selve modellen gir riktige fagvurderinger.
+
 ## Hva gjenstår?
 
-Demoen har **ingen AI, brukerpålogging eller tilkobling til Doffin, Mercell, CRM eller Microsoft 365**. Den bruker en liten regeltabell som demonstrasjon, ikke arbeidsgiverens faktiske ansvarsdata. Den lokale brukeren kan lese begge kanaler; tilgangsstyring gjenstår.
+Nettleserdemoen bruker fortsatt regler, og har **ingen brukerpålogging eller tilkobling til Doffin, Mercell, CRM eller Microsoft 365**. Den bruker en liten regeltabell som demonstrasjon, ikke arbeidsgiverens faktiske ansvarsdata. Den lokale brukeren kan lese begge kanaler; tilgangsstyring gjenstår.
 
-Mottakerbytte og godkjenning virker lokalt, uten pålogging. Kapasitet og tidligere kundekontakt styrer foreløpig ikke fordelingen. Tilbakemeldinger og retting av fag, område og regeltabeller i nettleseren gjenstår. AI-modell skal velges sammen før den kobles til.
+Mottakerbytte og godkjenning virker lokalt, uten pålogging. Kapasitet og tidligere kundekontakt styrer foreløpig ikke fordelingen. Tilbakemeldinger og retting av fag, område og regeltabeller i nettleseren gjenstår. Phi-4-mini er valgt som første lokale kandidat; kvaliteten må vurderes før den eventuelt kobles til arbeidsflyten.
 
 ## Les mer hvis du trenger det
 

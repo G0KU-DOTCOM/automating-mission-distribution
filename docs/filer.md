@@ -17,6 +17,9 @@ README forklarer hvordan du prøver demoen. Denne oversikten viser hvor hver del
 | `mission_distribution/models.py` | Leser data og stopper ugyldige ansvarslister. |
 | `mission_distribution/routing.py` | Foreslår mottaker og forklarer hvilken regel som ble brukt. |
 | `mission_distribution/classification.py` | Finner fag, relevans og område fra CPV-koder, tekst og en demotabell. |
+| `mission_distribution/phi_review.py` | Valgfri, lokal AI-vurdering av medfølgende fiktive tekster. Skriver ingen oppgaver. |
+| `demo_data/phi_review_examples.json` | Åtte oppdiktede AI-eksempler med egne demodefinisjoner og forventede svar. |
+| `tests/test_phi_review.py` | Kontrollerer lokal forbindelse og validering med simulerte svar, ikke modellkvalitet. |
 | `demo_data/classification_rules.json` | De små eksempelreglene for fag og område. |
 | `demo_data/classification_examples.json` | Åtte fiktive saker som viser treff, ukjent fag og bortsortering. |
 | `tests/test_classification.py` | Kontrollerer fagvurderingen, inkludert viktige grensetilfeller. |
@@ -38,3 +41,4 @@ README forklarer hvordan du prøver demoen. Denne oversikten viser hvor hver del
 | [Innlesing steg for steg](innlesing.md) | Viser hvordan du demonstrerer duplikatkontroll og oppdateringer. |
 | [Utviklingsplan](utviklingsplan.md) | Beskriver kravene vi bygger og kontrollerer steg for steg. |
 | [Nettleserdemo](nettleserdemo.md) | Forklarer hvordan du åpner og prøver oppdragsoversikten. |
+| [Lokal AI](lokal-ai.md) | Viser hvordan du installerer Ollama og prøver Phi uten betalte API-er. |

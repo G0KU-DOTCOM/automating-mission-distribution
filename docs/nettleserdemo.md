@@ -134,7 +134,7 @@ Serveren lytter bare på din egen maskin, på 127.0.0.1. Visningen bruker ingen 
 
 Den har ingen pålogging. En lokal administratør kan åpne begge kanaler. Kanalvis filtrering og kontroll av oppgave-ID hindrer at en partnerforespørsel får direktekanalens interne oppgavedata, men dette er **ikke** ferdig tilgangsstyring for flere brukere. Den vises ikke som en produksjonsløsning.
 
-Manuelt mottakerbytte finnes både i nettleseren og terminaldemoen. Lokal godkjenning er en egen handling i nettleseren. Rettelser av kildedata og regeltabeller, tilbakemeldinger, pålogging, AI og faktisk levering gjenstår. [Se utviklingsplanen](utviklingsplan.md).
+Manuelt mottakerbytte finnes både i nettleseren og terminaldemoen. Lokal godkjenning er en egen handling i nettleseren. Rettelser av kildedata og regeltabeller, tilbakemeldinger, pålogging, AI i nettleservisningen og faktisk levering gjenstår. Et eget [lokalt Phi-forsøk](lokal-ai.md) finnes i terminalen, uten å endre oppgavene. [Se utviklingsplanen](utviklingsplan.md).
 
 ## Kontroll av oppstarten
 

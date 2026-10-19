@@ -48,14 +48,22 @@ Dette er arbeidsgrunnlaget for utviklingen. Fordeling og vedvarende innlesing vi
 - Gamle skjemaer kan ikke overskrive nyere handlinger eller godkjenne nytt grunnlag.
 - Eksplisitt bekreftelse av kontroll ved endret tildelingsgrunnlag; konflikter, duplikater, avlysninger og bortfall av relevans blokkerer fortsatt godkjenning.
 
-Brukerpålogging, faktisk tilgangsstyring for flere brukere, API-innhenting, AI og ekstern levering gjenstår. Lokal godkjenning er ikke en identitetsbekreftet godkjenning hos arbeidsgiver. Tilbakemeldinger og retting av fag, område og regeltabeller i nettleseren er ikke implementert. Innlesingsdemoen laster ikke ned dokumentfiler. Kort frist i arbeidsdager, verdi, avtaletype, entrepriseform og spørsmålsfrist er heller ikke implementert. Regelsettet er ikke en fullstendig eller godkjent fagtabell.
+Brukerpålogging, faktisk tilgangsstyring for flere brukere, API-innhenting, AI i arbeidsflyten og ekstern levering gjenstår. Lokal godkjenning er ikke en identitetsbekreftet godkjenning hos arbeidsgiver. Tilbakemeldinger og retting av fag, område og regeltabeller i nettleseren er ikke implementert. Innlesingsdemoen laster ikke ned dokumentfiler. Kort frist i arbeidsdager, verdi, avtaletype, entrepriseform og spørsmålsfrist er heller ikke implementert. Regelsettet er ikke en fullstendig eller godkjent fagtabell.
+
+## Valgfritt forsøk: lokal Phi-4-mini
+
+- En egen `ai-review`-kommando vurderer medfølgende fiktive tekster ved siden av regelresultatet.
+- Den bruker bare lokal Ollama og fast modellnavn, uten betalte API-er eller nye Python-pakker.
+- Modellen vurderer fag per tekst; kundeeierskap, hovedfagsprioritet og mottakerregler endres ikke.
+- Åtte forhåndsdefinerte demofasiter, synlige feil og kontroll av svarformat og ordrette sitater.
+- Forbindelse og validering er testet med simulerte svar. Selve modellkvaliteten er ennå ikke målt. Den er ikke koblet til nettleservisningen. [Se veiledningen](lokal-ai.md).
 
 ## Avgrensning
 
 - Første versjon kjører lokalt og bruker bare tydelig merkede, oppdiktede oppdrag, personer, kunder og ansvarslister.
 - Eksempeldata viser vårt interne format. De skal ikke omtales som bekreftede svar fra Doffin- eller Mercell-API-ene.
 - Ingen tilkobling til Microsoft 365, CRM eller kilde-API-er er etablert eller testet.
-- AI-modell skal velges sammen med brukeren. Simulerte svar må merkes og må ikke presenteres som faktisk modellbruk.
+- Phi-4-mini er valgt sammen med brukeren som første lokale kandidat. Simulerte svar må merkes og må ikke presenteres som faktisk modellbruk. Videre bruk i arbeidsflyten krever vurdering av kvalitet.
 - Repoet skal være offentlig. Originaldokumenter fra arbeidsgiver, private meldinger, virkelige kunde- og ansattopplysninger og nøkler skal holdes utenfor repoet.
 
 ## Hva vi skal kontrollere
