@@ -44,7 +44,9 @@ SCHEMA = {
 
 
 class PhiReviewError(ValueError):
-    pass
+    def __init__(self, message, diagnostics=None):
+        super().__init__(message)
+        self.diagnostics = diagnostics
 
 
 def _unique_object(pairs):
@@ -125,15 +127,24 @@ def review_case(case, definitions):
     }
     started = time.monotonic()
     response = local_request("/api/chat", request)
-    if (not isinstance(response, dict) or response.get("model") != MODEL
-            or response.get("done") is not True or response.get("done_reason") != "stop"):
-        raise PhiReviewError("Modellen returnerte et ufullstendig eller uventet svar. Ingen oppgaver er endret.")
-    message = response.get("message")
-    if (not isinstance(message, dict) or message.get("role") != "assistant"
-            or not isinstance(message.get("content"), str) or message.get("tool_calls")):
-        raise PhiReviewError("Modellen returnerte ikke den forventede tekstvurderingen.")
-    assessment = validate_assessment(_json(message["content"]), case)
     fingerprint = sha256(json.dumps(request, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
+    try:
+        if (not isinstance(response, dict) or response.get("model") != MODEL
+                or response.get("done") is not True or response.get("done_reason") != "stop"):
+            raise PhiReviewError("Modellen returnerte et ufullstendig eller uventet svar. Ingen oppgaver er endret.")
+        message = response.get("message")
+        if (not isinstance(message, dict) or message.get("role") != "assistant"
+                or not isinstance(message.get("content"), str) or message.get("tool_calls")):
+            raise PhiReviewError("Modellen returnerte ikke den forventede tekstvurderingen.")
+        assessment = validate_assessment(_json(message["content"]), case)
+    except PhiReviewError as exc:
+        # Keep the rejected answer separate from accepted assessments and scores.
+        # Only bundled fictional examples reach this command.
+        message = response.get("message", {}) if isinstance(response, dict) else {}
+        diagnostics = {"request_fingerprint": fingerprint,
+                       "model_content": message.get("content") if isinstance(message, dict) else None,
+                       "seconds": round(time.monotonic() - started, 2)}
+        raise PhiReviewError(str(exc), diagnostics=diagnostics) from exc
     return {"assessment": assessment, "seconds": round(time.monotonic() - started, 2),
             "request_fingerprint": fingerprint}
 
@@ -168,6 +179,7 @@ def main(argv=None):
     selection.add_argument("--all", action="store_true", help="Prøv alle de fiktive sakene.")
     selection.add_argument("--check", action="store_true", help="Kontroller Ollama og nedlastet modell, uten modellkjøring.")
     parser.add_argument("--json", action="store_true", help="Vis resultatet som JSON.")
+    parser.add_argument("--diagnostics", action="store_true", help="Vis den faktiske, avviste modellteksten for feilsøking.")
     args = parser.parse_args(argv)
     try:
         definitions, examples = load_examples()
@@ -193,7 +205,12 @@ def main(argv=None):
                                                           for trade in TRADES)
                 except PhiReviewError as exc:
                     item["error"] = str(exc)
+                    if args.diagnostics and exc.diagnostics is not None:
+                        item["diagnostics"] = exc.diagnostics
                 report["results"].append(item)
+        report["summary"] = {"attempted": len(report["results"]),
+                             "valid": sum("assessment" in item for item in report["results"]),
+                             "rejected": sum("error" in item for item in report["results"])}
         if args.json:
             print(json.dumps(report, ensure_ascii=False, indent=2))
         else:
@@ -209,11 +226,25 @@ def main(argv=None):
                       f"øvrige fag {', '.join(baseline['other_trades']) or 'ingen'}; {baseline['relevance']}")
                 if "error" in item:
                     print(f"  Phi: ikke godkjent som gyldig svar — {item['error']}")
+                    if "diagnostics" in item:
+                        print("  Faktisk modelltekst (AVVIST; brukes ikke som fagresultat):")
+                        raw = item["diagnostics"]["model_content"]
+                        try:
+                            display = _json(raw) if isinstance(raw, str) else raw
+                        except PhiReviewError:
+                            display = raw
+                        print(json.dumps(display, ensure_ascii=False, indent=2))
                 else:
                     for trade, value in item["assessment"].items():
                         print(f"  Phi {trade}: {value['status']}; sitat: {value['sitat'] or '(ingen)'}")
                     print(f"  Samsvar med vår demofasit: {item['matching_demo_statuses']}/3 fag. Tid: {item['seconds']} s.")
                 print()
+            if report["results"]:
+                summary = report["summary"]
+                print(f"Svar som oppfyller format- og sitatkrav: {summary['valid']}/{summary['attempted']}. "
+                      f"Avvist: {summary['rejected']}. Dette måler ikke faglig riktighet.")
+                if summary["rejected"] and not args.diagnostics:
+                    print("Bruk --diagnostics for å se den faktiske, avviste modellteksten.")
             print("Et gyldig sitat er ikke bevis på riktig tolkning. Demofasiten er ikke godkjent av arbeidsgiver.")
         return 1 if any("error" in item for item in report["results"]) else 0
     except (DemoDataError, PhiReviewError) as exc:

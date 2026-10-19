@@ -122,6 +122,51 @@ class PhiValidationTests(unittest.TestCase):
         self.assertIn("error", report["results"][0])
         self.assertNotIn("assessment", report["results"][0])
 
+    def test_rejected_answer_is_available_only_with_explicit_diagnostics_and_never_scored(self):
+        response = envelope(self.case)
+        answer = simulated_answer(self.case)
+        answer["BA"] = {"status": "inngår", "sitat": self.definitions["BA"]}
+        raw = json.dumps(answer, ensure_ascii=False)
+        response["message"]["content"] = raw
+        for diagnostics in (False, True):
+            output = StringIO()
+            arguments = ["--json"] + (["--diagnostics"] if diagnostics else [])
+            with (patch.object(phi, "check_model", return_value="simulated-digest"),
+                  patch.object(phi, "local_request", return_value=response),
+                  redirect_stdout(output), redirect_stderr(StringIO())):
+                self.assertEqual(phi.main(arguments), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["summary"], {"attempted": 1, "valid": 0, "rejected": 1})
+            item = report["results"][0]
+            self.assertNotIn("assessment", item)
+            self.assertNotIn("matching_demo_statuses", item)
+            self.assertEqual("diagnostics" in item, diagnostics)
+            if diagnostics:
+                self.assertEqual(item["diagnostics"]["model_content"], raw)
+                self.assertEqual(len(item["diagnostics"]["request_fingerprint"]), 64)
+
+    def test_terminal_diagnostics_escape_control_characters_in_rejected_model_text(self):
+        response = envelope(self.case)
+        answer = simulated_answer(self.case)
+        answer["BA"] = {"status": "inngår", "sitat": "Not a quote \x1b[31m"}
+        response["message"]["content"] = json.dumps(answer)
+        output = StringIO()
+        with (patch.object(phi, "check_model", return_value="simulated-digest"),
+              patch.object(phi, "local_request", return_value=response),
+              redirect_stdout(output), redirect_stderr(StringIO())):
+            self.assertEqual(phi.main(["--diagnostics"]), 1)
+        self.assertIn("AVVIST", output.getvalue())
+        self.assertNotIn("\x1b", output.getvalue())
+        self.assertIn("\\u001b", output.getvalue())
+
+    def test_invalid_json_is_preserved_for_diagnostics_without_becoming_an_assessment(self):
+        response = envelope(self.case)
+        response["message"]["content"] = "This is not JSON"
+        with patch.object(phi, "local_request", return_value=response):
+            with self.assertRaises(phi.PhiReviewError) as error:
+                phi.review_case(self.case, self.definitions)
+        self.assertEqual(error.exception.diagnostics["model_content"], "This is not JSON")
+
 
 class LocalOllamaTransportTests(unittest.TestCase):
     def test_real_loopback_http_exchange_uses_fixed_model_and_validates_simulated_reply(self):
